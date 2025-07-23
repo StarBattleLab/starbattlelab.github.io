@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Drawing and Rendering
  *
  * @author Isaiah Tadrous
- * @version 1.3.2
+ * @version 1.3.3
  *
  * -------------------------------------------------------------------------------
  *
@@ -298,12 +298,12 @@ function drawSolutionOverlay() {
 function redrawAllOverlays() {
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height); // Clear the entire main drawing canvas.
 
+    drawCustomBorders(); // Draw any custom borders defined by the user.
+    
     // Draw the content from the off-screen buffer canvas onto the main canvas.
     if (state.bufferCtx) {
         drawCtx.drawImage(state.bufferCanvas, 0, 0);
     }
-
-    drawCustomBorders(); // Draw any custom borders defined by the user.
 
     // If the user is currently viewing the solution, draw the solution overlay.
     if (state.isViewingSolution) {
