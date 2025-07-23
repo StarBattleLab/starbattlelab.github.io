@@ -17,7 +17,8 @@
  *  includes a left panel for tools and customization (color picker, brush size, 
  *  undo/redo), a central grid and canvas for drawing and puzzle solving, and a 
  *  right panel for puzzle management actions like loading, saving, and checking 
- *  solutions. Modal dialogs handle puzzle loading and settings configuration.
+ *  solutions. Modal dialogs handle puzzle loading, settings configuration, and 
+ *  game instructions.
  * 
  **********************************************************************************
 -->
@@ -98,6 +99,11 @@
             <div class="w-full grid grid-cols-2 gap-3">
                 <button id="clear-btn" class="px-4 py-3 bg-red-600/80 hover:bg-red-700/80 rounded-lg font-semibold transition-all shadow-md">Clear</button>
                 <button id="toggle-mark-btn" class="px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-all shadow-md">Dots</button>
+            </div>
+            <!-- How to Play Button - Added to the bottom of the left panel -->
+            <div class="flex-grow"></div> <!-- Spacer to push the button to the bottom -->
+            <div class="pt-2">
+                <button id="how-to-play-btn" class="w-full px-4 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-all shadow-md">How to Play</button>
             </div>
         </div>
 
@@ -208,6 +214,49 @@
 		</div>
 	</div>
 
+  <!-- How to Play Modal - Added alongside the other modals -->
+  <div id="how-to-play-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl max-h-[80vh] flex flex-col">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-200">How to Play: Star Battle</h2>
+        <button id="how-to-play-modal-close-btn" class="text-gray-400 hover:text-white text-4xl font-bold">&times;</button>
+      </div>
+      <div id="how-to-play-content" class="overflow-y-auto pr-4 text-gray-300">
+        <h3 class="text-xl font-semibold text-gray-100 mb-2">The Goal</h3>
+        <p class="mb-4">
+          The objective is to place a certain number of stars in every row, every column, and every region on the grid. The number of stars to place is indicated by the "Size & Difficulty" setting (e.g., "6x6, 1-Star" means you place 1 star per row, column, and region).
+        </p>
+
+        <h3 class="text-xl font-semibold text-gray-100 mb-2">The Rules</h3>
+        <ul class="list-disc list-inside mb-4 pl-2 space-y-1">
+          <li>Each row must contain the correct number of stars.</li>
+          <li>Each column must contain the correct number of stars.</li>
+          <li>Each region (the areas with thick borders) must contain the correct number of stars.</li>
+          <li>Stars cannot be placed in adjacent cells, not even diagonally.</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-100 mb-2">Controls</h3>
+        <ul class="list-disc list-inside mb-4 pl-2 space-y-1">
+          <li><strong>Left-Click:</strong> In 'Mark Mode', this places a star. In 'Draw Mode' or 'Border Mode', it draws on the canvas.</li>
+          <li><strong>Right-Click:</strong> In 'Mark Mode', this places a small dot or an 'X' to help you keep track of empty cells. In 'Draw Mode' or 'Border Mode', it erases.</li>
+          <li><strong>Ctrl+Z / Cmd+Z:</strong> Undo your last action.</li>
+          <li><strong>Ctrl+Y / Cmd+Y:</strong> Redo an undone action.</li>
+        </ul>
+
+        <h3 class="text-xl font-semibold text-gray-100 mb-2">Button Explanations</h3>
+        <p class="mb-2"><strong>Mark/Draw/Border Mode:</strong> Switches your primary interaction. 'Mark' is for placing stars/dots, 'Draw' is for free-form drawing, and 'Border' is for drawing custom region lines.</p>
+        <p class="mb-2"><strong>Color Picker:</strong> Selects the color for 'Draw' and 'Border' modes.</p>
+        <p class="mb-2"><strong>Undo/Redo:</strong> Step backward or forward through your action history for the currently selected mode.</p>
+        <p class="mb-2"><strong>Clear:</strong> Clears all marks, drawings, or borders, depending on the active mode. This is undoable.</p>
+        <p class="mb-2"><strong>Dots/Xs:</strong> Toggles what a right-click places in 'Mark Mode'.</p>
+        <p class="mb-2"><strong>New Puzzle:</strong> Loads a new random puzzle with the selected size and difficulty.</p>
+        <p class="mb-2"><strong>Save/Load Puzzle:</strong> Save your current progress (including drawings) to your browser's local storage, or load a previously saved puzzle.</p>
+        <p class="mb-2"><strong>Import/Export:</strong> Share your puzzle (and its current state) with others using a text string.</p>
+        <p class="mb-2"><strong>Check Solution:</strong> Validates your current grid against the rules.</p>
+        <p class="mb-4"><strong>Find Solution:</strong> Solves the puzzle for you. Hold the button down to temporarily view the solution.</p>
+      </div>
+    </div>
+  </div>
 
     <!-- Load external JavaScript files -->
     <script src="config.js"></script> 

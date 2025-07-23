@@ -291,6 +291,31 @@ button {
     transform: translateX(26px);
 }
 
+/* --- How to Play Modal --- */ 
+
+#how-to-play-modal-close-btn {
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: bold;
+}
+
+#how-to-play-content {
+    max-height: 65vh; /* Limit height to 65% of the viewport height */
+    overflow-y: auto; /* Show a vertical scrollbar only when needed */
+}
+
+#how-to-play-content::-webkit-scrollbar {
+    width: 8px;
+}
+#how-to-play-content::-webkit-scrollbar-track {
+    background: #1f2937; /* gray-800 */
+}
+#how-to-play-content::-webkit-scrollbar-thumb {
+    background-color: #4b5563; /* gray-600 */
+    border-radius: 4px;
+    border: 2px solid #1f2937; /* gray-800 */
+}
+
 /* B&W Mode Overrides */
 .grid-container.bw-mode {
     border-color: #FFFFFF !important; /* White border for the whole grid */
