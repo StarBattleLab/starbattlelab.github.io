@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Main Application Logic
  *
  * @author Isaiah Tadrous
- * @version 1.8.1
+ * @version 1.8.3
  *
  * -------------------------------------------------------------------------------
  *
@@ -145,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateSolutionButtonUI();
                     clearPuzzleState();
                     renderGrid();
+                    updateUrlWithSbn();
                 }
             } else {
                 throw new Error('Failed to decode SBN from local file');
@@ -298,6 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSolutionButtonUI();
             updateUndoRedoButtons();
             setStatus("Puzzle loaded successfully!", true);
+            updateUrlWithSbn();
             return true;
         } catch (error) {
             console.error("Error importing puzzle:", error);
@@ -467,6 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         _internalClearMarks();
                         renderAllMarks();
                         updateErrorHighlightingUI();
+                        updateUrlWithSbn();
                     }
                     break;
             }
@@ -654,9 +657,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
-
+	    
+	(async () => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const sbnFromUrl = urlParams.get('sbn');
+		if (sbnFromUrl) {
+			// If an SBN string is found, import it.
+			// The importPuzzleString function already handles decoding and rendering.
+			await importPuzzleString(sbnFromUrl);
+		} else {
+			// Otherwise, fetch a new random puzzle as the default action.
+			fetchNewPuzzle();
+		}
+	})();
+	    
         // Initial setup calls.
-        fetchNewPuzzle();
         updateModeUI();
         renderColorPicker();
     }
