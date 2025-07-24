@@ -56,52 +56,52 @@
  * @property {Array<Object>} puzzleDefs - An array of predefined puzzle sizes and star counts, mirroring backend configurations.
  */
 const state = {
-  gridDim: 0,
-  starsPerRegion: 0,
-  regionGrid: [],      // 2D array defining the puzzle regions
-  playerGrid: [],      // 2D array for player's marks (0: empty, 1: star, 2: secondary)
-  sourcePuzzleData: {},// Original data from server for hashing/export
-  history: {           // Each mode has its own history stack
-    mark: { stack: [], pointer: -1 },
-    draw: { stack: [], pointer: -1 },
-    border: { stack: [], pointer: -1 },
-  },
-  markIsX: true,       // true for 'X', false for 'Dot'
-  isLoading: true,
-  solution: null,      // Holds the puzzle solution grid
-  isViewingSolution: false, // Flag for press-and-hold view
-  activeMode: 'mark',  // can be 'mark', 'draw', or 'border'
-  isLeftDown: false,
-  isRightDown: false,
-  isDragging: false,   // Flag to distinguish a click from a drag
-  lastPos: null,
-  currentBorderPath: new Set(), // Temporarily stores cells for the current border being drawn.
-  customBorders: [],   // Stores completed custom border paths and their colors.
-  colorToReplace: null, // Used in the color picker to determine which custom color slot to overwrite.
-  currentColorIndex: 0, // Current index selected in the color picker.
-  brushSize: 5,        // Size of the brush for drawing and erasing.
-  isBwMode: false,     // Toggles black and white rendering for puzzle regions.
-  highlightErrors: true, // Enables/disables visual cues for rule violations.
-  autoXAroundStars: false, // Setting for automatically placing 'X' marks around stars.
-  autoXOnMaxLines: false, // Setting for automatically placing 'X' marks in full rows/columns.
-  autoXOnMaxRegions: false, // Setting for automatically placing 'X' marks in full regions.
-  bufferCanvas: document.createElement('canvas'), // Off-screen canvas for preserving free-form drawings.
-  bufferCtx: null,          // 2D rendering context for the buffer canvas.
-  puzzleDefs: [ // Matches backend `constants.py` for the dropdown
-    { text: "5x5 (1-star, Easy)", dim: 5, stars: 1 },
-    { text: "6x6 (1-star, Easy)", dim: 6, stars: 1 },
-    { text: "6x6 (1-star, Medium)", dim: 6, stars: 1 },
-    { text: "8x8 (1-star, Medium)", dim: 8, stars: 1 },
-    { text: "8x8 (1-star, Hard)", dim: 8, stars: 1 },
-    { text: "10x10 (2-star, Easy)", dim: 10, stars: 2 },
-    { text: "10x10 (2-star, Medium)", dim: 10, stars: 2 },
-    { text: "10x10 (2-star, Hard)", dim: 10, stars: 2 },
-    { text: "14x14 (3-star, Medium)", dim: 14, stars: 3 },
-    { text: "14x14 (3-star, Hard)", dim: 14, stars: 3 },
-    { text: "17x17 (4-star, Hard)", dim: 17, stars: 4 },
-    { text: "21x21 (5-star, Hard)", dim: 21, stars: 5 },
-    { text: "25x25 (6-star, Hard)", dim: 25, stars: 6 },
-  ]
+    gridDim: 0,
+    starsPerRegion: 0,
+    regionGrid: [],      // 2D array defining the puzzle regions
+    playerGrid: [],      // 2D array for player's marks (0: empty, 1: star, 2: secondary)
+    sourcePuzzleData: {},// Original data from server for hashing/export
+    history: {           // Each mode has its own history stack
+        mark: { stack: [], pointer: -1 },
+        draw: { stack: [], pointer: -1 },
+        border: { stack: [], pointer: -1 },
+    },
+    markIsX: true,       // true for 'X', false for 'Dot'
+    isLoading: true,
+    solution: null,      // Holds the puzzle solution grid
+    isViewingSolution: false, // Flag for press-and-hold view
+    activeMode: 'mark',  // can be 'mark', 'draw', or 'border'
+    isLeftDown: false,
+    isRightDown: false,
+    isDragging: false,   // Flag to distinguish a click from a drag
+    lastPos: null,
+    currentBorderPath: new Set(), // Temporarily stores cells for the current border being drawn.
+    customBorders: [],   // Stores completed custom border paths and their colors.
+    colorToReplace: null, // Used in the color picker to determine which custom color slot to overwrite.
+    currentColorIndex: 0, // Current index selected in the color picker.
+    brushSize: 5,        // Size of the brush for drawing and erasing.
+    isBwMode: false,     // Toggles black and white rendering for puzzle regions.
+    highlightErrors: true, // Enables/disables visual cues for rule violations.
+    autoXAroundStars: false, // Setting for automatically placing 'X' marks around stars.
+    autoXOnMaxLines: false, // Setting for automatically placing 'X' marks in full rows/columns.
+    autoXOnMaxRegions: false, // Setting for automatically placing 'X' marks in full regions.
+    bufferCanvas: document.createElement('canvas'), // Off-screen canvas for preserving free-form drawings.
+    bufferCtx: null,          // 2D rendering context for the buffer canvas.
+    puzzleDefs: [ // Matches backend `constants.py` for the dropdown
+        { text: "5x5 (1-star, Easy)", dim: 5, stars: 1 },
+        { text: "6x6 (1-star, Easy)", dim: 6, stars: 1 },
+        { text: "6x6 (1-star, Medium)", dim: 6, stars: 1 },
+        { text: "8x8 (1-star, Medium)", dim: 8, stars: 1 },
+        { text: "8x8 (1-star, Hard)", dim: 8, stars: 1 },
+        { text: "10x10 (2-star, Easy)", dim: 10, stars: 2 },
+        { text: "10x10 (2-star, Medium)", dim: 10, stars: 2 },
+        { text: "10x10 (2-star, Hard)", dim: 10, stars: 2 },
+        { text: "14x14 (3-star, Medium)", dim: 14, stars: 3 },
+        { text: "14x14 (3-star, Hard)", dim: 14, stars: 3 },
+        { text: "17x17 (4-star, Hard)", dim: 17, stars: 4 },
+        { text: "21x21 (5-star, Hard)", dim: 21, stars: 5 },
+        { text: "25x25 (6-star, Hard)", dim: 25, stars: 6 },
+    ]
 };
 
 const API_BASE_URL = 'http://127.0.0.1:5001/api';
@@ -128,9 +128,9 @@ const SBN_CHAR_TO_INT = Object.fromEntries(Array.from(SBN_B64_ALPHABET).map((c, 
 const SBN_INT_TO_CHAR = Object.fromEntries(Array.from(SBN_B64_ALPHABET).map((c, i) => [i, c]));
 
 const SBN_CODE_TO_DIM_MAP = {
-  '55': 5, '66': 6, '77': 7, '88': 8, '99': 9, 'AA': 10, 'BB': 11, 'CC': 12, 'DD': 13,
-  'EE': 14, 'FF': 15, 'GG': 16, 'HH': 17, 'II': 18, 'JJ': 19, 'KK': 20, 'LL': 21, 'MM': 22,
-  'NN': 23, 'OO': 24, 'PP': 25
+    '55': 5, '66': 6, '77': 7, '88': 8, '99': 9, 'AA': 10, 'BB': 11, 'CC': 12, 'DD': 13,
+    'EE': 14, 'FF': 15, 'GG': 16, 'HH': 17, 'II': 18, 'JJ': 19, 'KK': 20, 'LL': 21, 'MM': 22,
+    'NN': 23, 'OO': 24, 'PP': 25
 };
 const DIM_TO_SBN_CODE_MAP = Object.fromEntries(Object.entries(SBN_CODE_TO_DIM_MAP).map(([k, v]) => [v, k]));
 
