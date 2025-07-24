@@ -4,7 +4,7 @@
  * Star Battle Handeling Logic
  *
  * @author Isaiah Tadrous
- * @version 1.0.1
+ * @version 1.0.2
  *
  * -------------------------------------------------------------------------------
  *
@@ -190,7 +190,7 @@ function decodePlayerAnnotations(annotationDataStr, dim) {
         const sbnToGame = { 0: STATE_EMPTY, 1: STATE_SECONDARY_MARK, 2: STATE_STAR };
         let charCursor = 0, cellCursor = 0;
 
-        while (cellCursor < dim * dim && charCursor < annotationDataStr.length) {
+        while (charCursor < annotationDataStr.length) {
             const value = SBN_CHAR_TO_INT[annotationDataStr[charCursor]] || 0;
             const states = [Math.floor(value / 16), Math.floor((value % 16) / 4), value % 4]; // Unpack base-4 values
             for (let i = 0; i < 3; i++) {
