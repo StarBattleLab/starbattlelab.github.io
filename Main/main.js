@@ -19,46 +19,45 @@
  **********************************************************************************
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-
+document.addEventListener("DOMContentLoaded", () => {
     // --- UI & STATUS FUNCTIONS ---
 
     /**
-   * Updates the loading spinner visibility based on the application's loading state.
-   * @param {boolean} isLoading - True if the application is loading, false otherwise.
-   */
+     * Updates the loading spinner visibility based on the application's loading state.
+     * @param {boolean} isLoading - True if the application is loading, false otherwise.
+     */
     function setLoading(isLoading) {
         state.isLoading = isLoading;
-        loadingSpinner.style.display = isLoading ? 'flex' : 'none';
+        loadingSpinner.style.display = isLoading ? "flex" : "none";
     }
 
     /**
-   * Displays a status message to the user, with optional success/error styling and auto-hide.
-   * @param {string} message - The message to display.
-   * @param {boolean|null} isSuccess - True for success, false for error, null/undefined for warning.
-   * @param {number} [duration=3000] - Duration in milliseconds before the message fades. Set to 0 to keep visible.
-   */
+     * Displays a status message to the user, with optional success/error styling and auto-hide.
+     * @param {string} message - The message to display.
+     * @param {boolean|null} isSuccess - True for success, false for error, null/undefined for warning.
+     * @param {number} [duration=3000] - Duration in milliseconds before the message fades. Set to 0 to keep visible.
+     */
     function setStatus(message, isSuccess, duration = 3000) {
         solverStatus.textContent = message;
-        solverStatus.classList.remove('text-green-400', 'text-red-400', 'text-yellow-400', 'opacity-0');
+        solverStatus.classList.remove("text-green-400", "text-red-400", "text-yellow-400", "opacity-0");
         if (isSuccess === true) {
-            solverStatus.classList.add('text-green-400');
+            solverStatus.classList.add("text-green-400");
         } else if (isSuccess === false) {
-            solverStatus.classList.add('text-red-400');
+            solverStatus.classList.add("text-red-400");
         } else {
-            solverStatus.classList.add('text-yellow-400');
+            solverStatus.classList.add("text-yellow-400");
         }
         if (duration > 0) {
-            setTimeout(() => solverStatus.classList.add('opacity-0'), duration);
+            setTimeout(() => solverStatus.classList.add("opacity-0"), duration);
         }
     }
 
     /**
-   * Populates the puzzle size selection dropdown with available puzzle definitions.
-   */
+     * Populates the puzzle size selection dropdown with available puzzle definitions.
+     */
     function populateSizeSelector() {
         state.puzzleDefs.forEach((def, index) => {
-            const option = document.createElement('option');
+            const option = document.createElement("option");
             option.value = index;
             option.textContent = def.text;
             sizeSelect.appendChild(option);
@@ -68,52 +67,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-   * Updates the text and color of the 'Find Solution' button based on whether a solution is currently loaded.
-   */
+     * Updates the text and color of the 'Find Solution' button based on whether a solution is currently loaded.
+     */
     function updateSolutionButtonUI() {
         if (state.solution) {
-            findSolutionBtn.textContent = 'View Solution';
-            findSolutionBtn.style.backgroundColor = '#b5b538'; // Yellow-ish color for 'View'
+            findSolutionBtn.textContent = "View Solution";
+            findSolutionBtn.style.backgroundColor = "#b5b538"; // Yellow-ish color for 'View'
         } else {
-            findSolutionBtn.textContent = 'Find Solution';
-            findSolutionBtn.style.backgroundColor = 'rgb(147 51 234)'; // Original purple color
+            findSolutionBtn.textContent = "Find Solution";
+            findSolutionBtn.style.backgroundColor = "rgb(147 51 234)"; // Original purple color
         }
     }
 
     /**
-   * Adjusts the UI elements (buttons, panels, canvas pointer events) based on the currently active interaction mode (mark, draw, border).
-   */
+     * Adjusts the UI elements (buttons, panels, canvas pointer events) based on the currently active interaction mode (mark, draw, border).
+     */
     function updateModeUI() {
-        const isMarking = state.activeMode === 'mark';
-        const isDrawing = state.activeMode === 'draw';
-        const isBordering = state.activeMode === 'border';
+        const isMarking = state.activeMode === "mark";
+        const isDrawing = state.activeMode === "draw";
+        const isBordering = state.activeMode === "border";
 
-        markModeBtn.classList.toggle('selected', isMarking);
-        drawModeBtn.classList.toggle('selected', isDrawing);
-        borderModeBtn.classList.toggle('selected', isBordering);
+        markModeBtn.classList.toggle("selected", isMarking);
+        drawModeBtn.classList.toggle("selected", isDrawing);
+        borderModeBtn.classList.toggle("selected", isBordering);
 
-        toggleMarkBtn.style.display = isMarking ? 'block' : 'none';
+        toggleMarkBtn.style.display = isMarking ? "block" : "none";
 
-        document.getElementById('color-picker-wrapper').style.display = (isDrawing || isBordering) ? 'block' : 'none';
-        document.getElementById('brush-size-wrapper').style.display = isDrawing ? 'block' : 'none';
+        document.getElementById("color-picker-wrapper").style.display = (isDrawing || isBordering) ? "block" : "none";
+        document.getElementById("brush-size-wrapper").style.display = isDrawing ? "block" : "none";
 
-        drawCanvas.style.pointerEvents = (isDrawing || isBordering) ? 'auto' : 'none';
+        drawCanvas.style.pointerEvents = (isDrawing || isBordering) ? "auto" : "none";
 
         if (isDrawing) {
-            clearBtn.title = 'Clear all drawings from the canvas (Undoable)';
+            clearBtn.title = "Clear all drawings from the canvas (Undoable)";
         } else if (isBordering) {
-            clearBtn.title = 'Clear all custom borders (Undoable)';
+            clearBtn.title = "Clear all custom borders (Undoable)";
         } else {
-            clearBtn.title = 'Clear all stars and marks (Undoable)';
+            clearBtn.title = "Clear all stars and marks (Undoable)";
         }
     }
 
     // --- LOCAL SOLVER & DATA HANDLING FUNCTIONS ---
 
     /**
-   * Fetches a new puzzle from the local puzzles.json file.
-   * Updates the application state with the new puzzle data and re-renders the grid.
-   */
+     * Fetches a new puzzle from the local puzzles.json file.
+     * Updates the application state with the new puzzle data and re-renders the grid.
+     */
     async function fetchNewPuzzle() {
         setLoading(true);
         const sizeId = sizeSelect.value;
@@ -123,7 +122,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const allPuzzles = await response.json();
 
             const puzzlesForSize = allPuzzles[sizeId];
-            if (!puzzlesForSize || puzzlesForSize.length === 0) throw new Error(`No puzzles found for size_id ${sizeId}`);
+            if (!puzzlesForSize || puzzlesForSize.length === 0) {
+                throw new Error(`No puzzles found for size_id ${sizeId}`);
+            }
 
             const randomSbn = puzzlesForSize[Math.floor(Math.random() * puzzlesForSize.length)];
             const puzzleData = decodeSbn(randomSbn);
@@ -131,14 +132,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (puzzleData) {
                 const {
                     grid,
-                    dim
+                    dim,
                 } = parseAndValidateGrid(puzzleData.task);
                 if (grid) {
                     state.regionGrid = grid;
                     state.starsPerRegion = puzzleData.stars;
                     state.sourcePuzzleData = {
                         task: puzzleData.task,
-                        stars: puzzleData.stars
+                        stars: puzzleData.stars,
                     }; // Store source
                     state.gridDim = dim;
                     state.solution = null;
@@ -147,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderGrid();
                 }
             } else {
-                throw new Error('Failed to decode SBN from local file');
+                throw new Error("Failed to decode SBN from local file");
             }
         } catch (error) {
             console.error("Error fetching new puzzle:", error);
@@ -157,11 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     /**
-   * Requests a solution for the current puzzle from the client-side solver.
-   * If a solution is found, it updates the application state and UI.
-   */
+     * Requests a solution for the current puzzle from the client-side solver.
+     * If a solution is found, it updates the application state and UI.
+     */
     async function findSolution() {
         setLoading(true);
         setStatus("Solving... this may take a moment.", null, 0);
@@ -190,9 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-   * Validates the player's current grid against all Star Battle rules.
-   * @returns {boolean} True if the grid is a correct and complete solution, false otherwise.
-   */
+     * Validates the player's current grid against all Star Battle rules.
+     * @returns {boolean} True if the grid is a correct and complete solution, false otherwise.
+     */
     function validatePlayerGrid() {
         const { playerGrid, regionGrid, gridDim, starsPerRegion } = state;
 
@@ -240,11 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
         return true;
     }
 
-
     /**
-   * Checks the player's current grid state locally for correctness.
-   * Updates the UI with the check result (correct or incorrect).
-   */
+     * Checks the player's current grid state locally for correctness.
+     * Updates the UI with the check result (correct or incorrect).
+     */
     async function checkSolution() {
         setLoading(true);
         try {
@@ -263,25 +262,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-   * Imports a puzzle from a given string (SBN or Web Task format) using local logic.
-   * @param {string} importString - The puzzle string to import.
-   * @returns {Promise<boolean>} True if import was successful, false otherwise.
-   */
+     * Imports a puzzle from a given string (SBN or Web Task format) using local logic.
+     * @param {string} importString - The puzzle string to import.
+     * @returns {Promise<boolean>} True if import was successful, false otherwise.
+     */
     async function importPuzzleString(importString) {
         if (!importString) return false;
         setLoading(true);
         try {
             const data = universalImport(importString);
             if (!data) {
-                throw new Error('Could not recognize puzzle format');
+                throw new Error("Could not recognize puzzle format");
             }
 
             state.gridDim = data.gridDim;
             state.starsPerRegion = data.starsPerRegion;
             state.regionGrid = data.regionGrid;
             state.sourcePuzzleData = {
-                task: data.regionGrid.flat().join(','),
-                stars: data.starsPerRegion
+                task: data.regionGrid.flat().join(","),
+                stars: data.starsPerRegion,
             };
             state.solution = null;
 
@@ -310,17 +309,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-   * Prompts the user for a puzzle string and attempts to import it.
-   */
+     * Prompts the user for a puzzle string and attempts to import it.
+     */
     async function handleImport() {
         const importString = prompt("Paste your puzzle string (SBN or Web Task format):");
         await importPuzzleString(importString);
     }
 
     /**
-   * Exports the current puzzle state to an SBN string using local logic.
-   * Copies the string to the clipboard or prompts the user if auto-copy fails.
-   */
+     * Exports the current puzzle state to an SBN string using local logic.
+     * Copies the string to the clipboard or prompts the user if auto-copy fails.
+     */
     async function handleExport() {
         try {
             const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
@@ -337,10 +336,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     /**
-   * Saves the current puzzle state to local storage using local SBN generation.
-   */
+     * Saves the current puzzle state to local storage using local SBN generation.
+     */
     async function handleSave() {
         const comment = prompt("Enter a comment for this save:", "");
         if (comment === null) {
@@ -352,16 +350,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
             if (!sbnString) throw new Error("Failed to generate SBN string for saving.");
 
-            const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+            const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
             const newSave = {
                 sbn: sbnString,
-                comment: comment || 'No comment',
+                comment: comment || "No comment",
                 date: new Date().toISOString(),
                 drawingData: state.bufferCanvas.toDataURL(),
                 borderData: state.customBorders.map(border => ({
                     color: border.color,
-                    path: Array.from(border.path)
-                }))
+                    path: Array.from(border.path),
+                })),
             };
 
             saves.unshift(newSave);
@@ -373,17 +371,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
     /**
-   * Populates the load puzzle modal with a list of saved puzzles from local storage.
-   * Includes options to load or delete saved entries.
-   */
+     * Populates the load puzzle modal with a list of saved puzzles from local storage.
+     * Includes options to load or delete saved entries.
+     */
     function populateLoadModal() {
-        const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
-        modalContent.innerHTML = ''; // Clear previous content.
+        const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+        modalContent.innerHTML = ""; // Clear previous content.
 
         if (saves.length === 0) {
-            modalContent.innerHTML = '<p class="text-gray-400 text-center">No puzzles saved yet.</p>';
+            modalContent.innerHTML = "<p class=\"text-gray-400 text-center\">No puzzles saved yet.</p>";
             return;
         }
 
@@ -391,8 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const saveDate = new Date(save.date);
             const dateString = saveDate.toLocaleString(); // Format date for display.
 
-            const item = document.createElement('div');
-            item.className = 'save-item';
+            const item = document.createElement("div");
+            item.className = "save-item";
             item.dataset.sbn = save.sbn; // Store SBN string for loading.
             item.dataset.index = index; // Store index for deletion.
 
@@ -412,57 +409,59 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INITIALIZATION ---
 
     /**
-   * Initializes the application by setting up event listeners and fetching the initial puzzle.
-   */
+     * Initializes the application by setting up event listeners and fetching the initial puzzle.
+     */
     function init() {
         populateSizeSelector();
 
         // This is a temporary measure to prevent users from accidentally losing their work until backend storage is implemented.
-        window.addEventListener('beforeunload', (e) => {
+        window.addEventListener("beforeunload", (e) => {
             // Prevent the default action to trigger the browser's confirmation dialog.
             e.preventDefault();
             // Required for some older browsers.
-            e.returnValue = '';
+            e.returnValue = "";
         });
 
         // Attach event listeners to main control buttons.
-        newPuzzleBtn.addEventListener('click', fetchNewPuzzle);
-        savePuzzleBtn.addEventListener('click', handleSave);
-        checkSolutionBtn.addEventListener('click', checkSolution);
-        importBtn.addEventListener('click', handleImport);
-        exportBtn.addEventListener('click', handleExport);
-        undoBtn.addEventListener('click', undo);
-        redoBtn.addEventListener('click', redo);
+        newPuzzleBtn.addEventListener("click", fetchNewPuzzle);
+        savePuzzleBtn.addEventListener("click", handleSave);
+        checkSolutionBtn.addEventListener("click", checkSolution);
+        importBtn.addEventListener("click", handleImport);
+        exportBtn.addEventListener("click", handleExport);
+        undoBtn.addEventListener("click", undo);
+        redoBtn.addEventListener("click", redo);
 
         // Clear button functionality based on active mode.
-        clearBtn.addEventListener('click', () => {
+        clearBtn.addEventListener("click", () => {
             let action = {
-                type: null
+                type: null,
             };
             switch (state.activeMode) {
-                case 'draw':
+                case "draw":
                     if (!state.bufferCtx || state.bufferCanvas.width === 0) return;
                     action = {
-                        type: 'clearDraw',
-                        before: state.bufferCtx.getImageData(0, 0, state.bufferCanvas.width, state.bufferCanvas.height)
+                        type: "clearDraw",
+                        before: state.bufferCtx.getImageData(0, 0, state.bufferCanvas.width, state.bufferCanvas.height),
                     };
                     state.bufferCtx.clearRect(0, 0, state.bufferCanvas.width, state.bufferCanvas.height);
                     redrawAllOverlays();
                     break;
-                case 'border':
+                case "border":
                     if (state.customBorders.length === 0) return;
                     action = {
-                        type: 'clearBorder',
-                        before: deepCopyBorders(state.customBorders) // Make a deep copy for undo.
+                        type: "clearBorder",
+                        before: deepCopyBorders(state.customBorders), // Make a deep copy for undo.
                     };
                     state.customBorders = [];
                     redrawAllOverlays();
                     break;
-                case 'mark':
-                    if (confirm('Are you sure you want to clear all stars and marks? This CAN be undone. (click Undo)')) {
+                case "mark":
+                    if (
+                        confirm("Are you sure you want to clear all stars and marks? This CAN be undone. (click Undo)")
+                    ) {
                         action = {
-                            type: 'clearMarks',
-                            before: JSON.parse(JSON.stringify(state.playerGrid)) // Deep copy player grid for undo.
+                            type: "clearMarks",
+                            before: JSON.parse(JSON.stringify(state.playerGrid)), // Deep copy player grid for undo.
                         };
                         _internalClearMarks();
                         renderAllMarks();
@@ -477,7 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Toggle between dot and 'X' marks.
-        toggleMarkBtn.addEventListener('click', () => {
+        toggleMarkBtn.addEventListener("click", () => {
             state.markIsX = !state.markIsX;
             toggleMarkBtn.textContent = state.markIsX ? "Dots" : "Xs";
             renderAllMarks();
@@ -485,21 +484,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         /**
-     * Switches the active interaction mode and updates the UI accordingly.
-     * @param {string} newMode - The mode to switch to ('mark', 'draw', or 'border').
-     */
+         * Switches the active interaction mode and updates the UI accordingly.
+         * @param {string} newMode - The mode to switch to ('mark', 'draw', or 'border').
+         */
         function switchMode(newMode) {
             state.activeMode = newMode;
             updateModeUI();
             updateUndoRedoButtons();
         }
 
-        markModeBtn.addEventListener('click', () => switchMode('mark'));
-        drawModeBtn.addEventListener('click', () => switchMode('draw'));
-        borderModeBtn.addEventListener('click', () => switchMode('border'));
+        markModeBtn.addEventListener("click", () => switchMode("mark"));
+        drawModeBtn.addEventListener("click", () => switchMode("draw"));
+        borderModeBtn.addEventListener("click", () => switchMode("border"));
 
         // 'Find Solution' button behavior: find or view.
-        findSolutionBtn.addEventListener('mousedown', (e) => {
+        findSolutionBtn.addEventListener("mousedown", (e) => {
             // Prevent loss of focus for mousedown->mouseup combo
             e.preventDefault();
             if (state.solution) {
@@ -515,71 +514,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 redrawAllOverlays();
             }
         };
-        findSolutionBtn.addEventListener('mouseup', stopViewingSolution);
-        findSolutionBtn.addEventListener('mouseleave', stopViewingSolution);
+        findSolutionBtn.addEventListener("mouseup", stopViewingSolution);
+        findSolutionBtn.addEventListener("mouseleave", stopViewingSolution);
 
         // Modal for loading saved puzzles.
-        loadPuzzleBtn.addEventListener('click', () => {
+        loadPuzzleBtn.addEventListener("click", () => {
             populateLoadModal();
-            loadModal.classList.remove('hidden');
+            loadModal.classList.remove("hidden");
         });
 
-        modalCloseBtn.addEventListener('click', () => {
-            loadModal.classList.add('hidden');
+        modalCloseBtn.addEventListener("click", () => {
+            loadModal.classList.add("hidden");
         });
 
         // Modal for settings.
-        settingsBtn.addEventListener('click', () => {
-            settingsModal.classList.remove('hidden');
+        settingsBtn.addEventListener("click", () => {
+            settingsModal.classList.remove("hidden");
         });
-        settingsModalCloseBtn.addEventListener('click', () => {
-            settingsModal.classList.add('hidden');
+        settingsModalCloseBtn.addEventListener("click", () => {
+            settingsModal.classList.add("hidden");
         });
 
         // Settings toggles.
-        bwModeToggle.addEventListener('change', (e) => {
+        bwModeToggle.addEventListener("change", (e) => {
             state.isBwMode = e.target.checked;
             renderGrid();
         });
-        highlightErrorsToggle.addEventListener('change', (e) => {
+        highlightErrorsToggle.addEventListener("change", (e) => {
             state.highlightErrors = e.target.checked;
             updateErrorHighlightingUI();
         });
-        autoXAroundToggle.addEventListener('change', (e) => {
+        autoXAroundToggle.addEventListener("change", (e) => {
             state.autoXAroundStars = e.target.checked;
         });
-        autoXMaxLinesToggle.addEventListener('change', (e) => {
+        autoXMaxLinesToggle.addEventListener("change", (e) => {
             state.autoXOnMaxLines = e.target.checked;
         });
-        autoXMaxRegionsToggle.addEventListener('change', (e) => {
+        autoXMaxRegionsToggle.addEventListener("change", (e) => {
             state.autoXOnMaxRegions = e.target.checked;
         });
 
-        // Modal for HowToPlayButton 
-        howToPlayBtn.addEventListener('click', () => {
-            howToPlayModal.classList.remove('hidden');
+        // Modal for HowToPlayButton
+        howToPlayBtn.addEventListener("click", () => {
+            howToPlayModal.classList.remove("hidden");
         });
-        howToPlayModalCloseBtn.addEventListener('click', () => {
-            howToPlayModal.classList.add('hidden');
+        howToPlayModalCloseBtn.addEventListener("click", () => {
+            howToPlayModal.classList.add("hidden");
         });
 
         // Event delegation for load modal content (load and delete saves).
-        modalContent.addEventListener('click', async (e) => {
-            const saveItem = e.target.closest('.save-item');
-            const deleteBtn = e.target.closest('.delete-save-btn');
+        modalContent.addEventListener("click", async (e) => {
+            const saveItem = e.target.closest(".save-item");
+            const deleteBtn = e.target.closest(".delete-save-btn");
 
             if (deleteBtn) {
                 e.stopPropagation(); // Prevent save item click event.
                 const indexToDelete = parseInt(deleteBtn.dataset.index, 10);
-                if (confirm('Are you sure you want to delete this save?')) {
-                    let saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+                if (confirm("Are you sure you want to delete this save?")) {
+                    let saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
                     saves.splice(indexToDelete, 1); // Remove the save at the specified index.
                     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(saves));
                     populateLoadModal(); // Refresh modal content.
                 }
             } else if (saveItem) {
                 const indexToLoad = parseInt(saveItem.dataset.index, 10);
-                const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
+                const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
                 const saveToLoad = saves[indexToLoad];
                 if (!saveToLoad) return;
 
@@ -590,7 +589,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (saveToLoad.borderData) {
                         state.customBorders = saveToLoad.borderData.map(border => ({
                             color: border.color,
-                            path: new Set(border.path) // Convert array back to Set.
+                            path: new Set(border.path), // Convert array back to Set.
                         }));
                     }
 
@@ -607,29 +606,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     redrawAllOverlays();
-                    loadModal.classList.add('hidden');
+                    loadModal.classList.add("hidden");
                 }
             }
         });
 
         // Brush size slider for drawing/bordering modes.
-        brushSizeSlider.addEventListener('input', (e) => {
+        brushSizeSlider.addEventListener("input", (e) => {
             const newSize = parseInt(e.target.value, 10);
             state.brushSize = newSize;
             brushSizeValue.textContent = newSize;
         });
 
         // Color picker functionality.
-        customColorBtn.addEventListener('click', () => {
+        customColorBtn.addEventListener("click", () => {
             state.colorToReplace = state.currentColor; // Store current color to replace for custom color slot.
             htmlColorPicker.click(); // Programmatically click the hidden HTML color input.
         });
-        htmlColorPicker.addEventListener('input', (e) => selectColor(e.target.value));
-        htmlColorPicker.addEventListener('change', (e) => saveCustomColor(e.target.value));
-        presetColorsContainer.addEventListener('click', (e) => {
+        htmlColorPicker.addEventListener("input", (e) => selectColor(e.target.value));
+        htmlColorPicker.addEventListener("change", (e) => saveCustomColor(e.target.value));
+        presetColorsContainer.addEventListener("click", (e) => {
             if (e.target.dataset.color) selectColor(e.target.dataset.color);
         });
-        customColorsContainer.addEventListener('click', (e) => {
+        customColorsContainer.addEventListener("click", (e) => {
             if (e.target.dataset.color) {
                 selectColor(e.target.dataset.color);
             } else if (e.target.dataset.customIndex) {
@@ -639,23 +638,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Mouse and resize event listeners for grid interaction and rendering.
-        gridContainer.addEventListener('mousedown', handleMouseDown);
-        drawCanvas.addEventListener('mousedown', handleMouseDown);
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
-        gridContainer.addEventListener('contextmenu', e => e.preventDefault()); // Prevent right-click context menu.
-        drawCanvas.addEventListener('contextmenu', e => e.preventDefault());
-        window.addEventListener('resize', resizeCanvas);
+        gridContainer.addEventListener("mousedown", handleMouseDown);
+        drawCanvas.addEventListener("mousedown", handleMouseDown);
+        window.addEventListener("mousemove", handleMouseMove);
+        window.addEventListener("mouseup", handleMouseUp);
+        gridContainer.addEventListener("contextmenu", e => e.preventDefault()); // Prevent right-click context menu.
+        drawCanvas.addEventListener("contextmenu", e => e.preventDefault());
+        window.addEventListener("resize", resizeCanvas);
 
         // Keyboard shortcuts for Undo/Redo (Ctrl/Cmd + Z/Y).
-        window.addEventListener('keydown', (e) => {
+        window.addEventListener("keydown", (e) => {
             if (e.ctrlKey || e.metaKey) { // Check for Ctrl or Command key.
                 switch (e.key.toLowerCase()) {
-                    case 'z':
+                    case "z":
                         e.preventDefault(); // Prevent browser's default undo.
                         undo();
                         break;
-                    case 'y':
+                    case "y":
                         e.preventDefault(); // Prevent browser's default redo.
                         redo();
                         break;
