@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Main Application Logic
  *
  * @author Isaiah Tadrous
- * @version 1.8.1
+ * @version 1.9.0
  *
  * -------------------------------------------------------------------------------
  *
@@ -74,9 +74,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.solution) {
             findSolutionBtn.textContent = 'View Solution';
             findSolutionBtn.style.backgroundColor = '#b5b538'; // Yellow-ish color for 'View'
+            findSolutionBtn.classList.add('view-mode');
         } else {
             findSolutionBtn.textContent = 'Find Solution';
             findSolutionBtn.style.backgroundColor = 'rgb(147 51 234)'; // Original purple color
+            findSolutionBtn.classList.remove('view-mode');
         }
     }
 
@@ -415,6 +417,8 @@ document.addEventListener('DOMContentLoaded', () => {
      * Initializes the application by setting up event listeners and fetching the initial puzzle.
      */
     function init() {
+        const futuristicThemeLink = document.getElementById('futuristic-theme');
+        const futuristicThemeToggle = document.getElementById('futuristic-theme-toggle');
         populateSizeSelector();
 		
 		// This is a temporary measure to prevent users from accidentally losing their work until backend storage is implemented.
@@ -537,6 +541,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Settings toggles.
+        futuristicThemeToggle.addEventListener('change', (e) => {
+         const isEnabled = e.target.checked;
+        futuristicThemeLink.disabled = !isEnabled;
+        localStorage.setItem('futuristicThemeEnabled', isEnabled);
+        if (isEnabled) {
+		document.body.style.fontFamily = "'Orbitron', sans-serif";
+		state.isBwMode = e.target.checked;
+		bwModeToggle.checked = isEnabled;
+		renderGrid();
+	} else {
+		document.body.style.fontFamily = "'Inter', sans-serif";
+	}
+        });
         bwModeToggle.addEventListener('change', (e) => {
             state.isBwMode = e.target.checked;
             renderGrid();
