@@ -4,7 +4,7 @@
  * 
  *  @author Joseph Bryant
  *  @refactored by Isaiah Tadrous
- *  @version 2.1.5
+ *  @version 2.2.0
  * 
  * -------------------------------------------------------------------------------
  * 
@@ -44,7 +44,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/Themes/futuristic.css" id="futuristic-theme" disabled>
 </head>
 <body class="bg-gray-800 text-gray-200 flex flex-col items-center justify-center h-screen overflow-hidden p-2 md:p-4 font-['Inter',_sans-serif]">
 
@@ -169,6 +171,13 @@
 				<button id="settings-modal-close-btn" class="text-gray-400 hover:text-white text-4xl font-bold">&times;</button>
 			</div>
 			<div class="space-y-4">
+				<div class="setting-item">
+					<label for="futuristic-theme-toggle" class="text-lg text-gray-300">Futuristic Theme</label>
+					<label class="toggle-switch">
+						<input type="checkbox" id="futuristic-theme-toggle">
+						<span class="slider"></span>
+					</label>
+				</div>
 				<div class="setting-item">
 					<label for="bw-mode-toggle" class="text-lg text-gray-300">Black & White Mode</label>
 					<label class="toggle-switch">

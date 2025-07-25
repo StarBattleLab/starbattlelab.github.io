@@ -1,0 +1,360 @@
+/* =============================================================================
+   File:        futuristic.css
+   Author:      Isaiah Tadrous
+   Theme:       FUTURISTIC UI – Sleek Puzzle Interface Styling
+   Last Mod:    July 25, 2025
+
+   Description:
+   Custom CSS theme for a sci-fi-inspired puzzle interface, featuring a 
+   dark tech aesthetic with sharp geometric buttons, neon highlights, 
+   and modern UI interactions.
+
+   Inspired by fictional user interfaces (FUI) and modern HUD design.
+
+============================================================================= */
+
+
+/* --- 1. Core Variables & Body --- */
+:root {
+    --futuristic-bg: #0D0F18;
+    --futuristic-panel-bg: rgba(23, 29, 46, 0.7);
+    --futuristic-accent: #00E5FF;
+    --futuristic-accent-glow: rgba(0, 229, 255, 0.5);
+    --futuristic-text: #EAEBFF;
+    --futuristic-border: rgba(0, 229, 255, 0.2);
+    --futuristic-error: #FF3B6B;
+    --futuristic-yellow-view: #b5b538; /* Matches the color from main.js */
+}
+
+body {
+    background-color: var(--futuristic-bg) !important;
+    color: var(--futuristic-text) !important;
+    font-family: 'Orbitron', sans-serif !important;
+}
+
+/* --- 2. Main Layout & Panels --- */
+.w-full.max-w-7xl.mx-auto.bg-gray-900 {
+    background-color: var(--futuristic-panel-bg) !important;
+    border: 1px solid var(--futuristic-border);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+.w-full.lg\:w-64.bg-gray-800\/50 {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+}
+/* ==========================================
+   FUTURISTIC RANGE SLIDER STYLING (ID-based)
+   ========================================== */
+#brush-size-slider {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  width: 100% !important;
+  height: 0.5rem !important;
+  border-radius: 1rem !important;
+  background: linear-gradient(to right, rgba(0,255,255,0.3), rgba(0,255,255,0.1)) !important;
+  box-shadow: 0 0 6px rgba(0,255,255,0.15), inset 0 1px 2px rgba(0, 255, 255, 0.1) !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+  outline: none !important;
+}
+
+/* WebKit/Blink Track */
+#brush-size-slider::-webkit-slider-runnable-track {
+  height: 0.5rem !important;
+  border-radius: 1rem !important;
+  background: transparent !important;
+}
+
+/* WebKit/Blink Thumb */
+#brush-size-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  height: 1rem !important;
+  width: 1rem !important;
+  border-radius: 50% !important;
+  background: cyan !important;
+  border: 2px solid rgba(0, 255, 255, 0.6) !important;
+  box-shadow: 0 0 8px rgba(0,255,255,0.6), inset 0 0 4px rgba(255,255,255,0.2) !important;
+  margin-top: -0.25rem !important;
+  transition: transform 0.15s ease !important;
+}
+
+#brush-size-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2) !important;
+}
+
+/* Firefox Track */
+#brush-size-slider::-moz-range-track {
+  height: 0.5rem !important;
+  border-radius: 1rem !important;
+  background: transparent !important;
+}
+
+/* Firefox Thumb */
+#brush-size-slider::-moz-range-thumb {
+  height: 1rem !important;
+  width: 1rem !important;
+  border-radius: 50% !important;
+  background: cyan !important;
+  border: 2px solid rgba(0, 255, 255, 0.6) !important;
+  box-shadow: 0 0 8px rgba(0,255,255,0.6), inset 0 0 4px rgba(255,255,255,0.2) !important;
+  transition: transform 0.15s ease !important;
+}
+
+#brush-size-slider::-moz-range-thumb:hover {
+  transform: scale(1.2) !important;
+}
+
+/* =============================================
+   FUTURISTIC COLOR PICKER UI – HIGH CONTRAST
+   With glowing effects, depth, and transparency
+   ============================================= */
+.color-slot {
+  position: relative !important;
+  width: 100% !important;
+  height: 2rem !important; /* 32px */
+  border-radius: 0.5rem !important;
+  cursor: pointer !important;
+
+  /* No background-color here — keep your actual color */
+  border: 2px solid rgba(0, 255, 255, 0.05) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 255, 255, 0.08),
+    0 0 6px rgba(0, 255, 255, 0.05) !important;
+
+  transition: all 0.2s ease-in-out !important;
+  overflow: hidden !important;
+}
+
+.color-slot::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+
+  /* gradient glow overlay */
+  background:
+    linear-gradient(
+      145deg,
+      rgba(0, 0, 0, 0.15),
+      rgba(0, 0, 0, 0) 10%,
+      rgba(0, 0, 0, 0.15)
+    ) !important;
+
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.3),
+    inset 0 -2px 6px rgba(0, 255, 255, 0.15) !important;
+
+  transition: all 0.2s ease-in-out !important;
+  z-index: 1 !important;
+}
+
+.color-slot.selected {
+  /* Instead of changing background-color, maybe darken the color visually via box-shadow and border */
+  transform: translateY(2px) !important;
+
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.7),
+    inset 0 -2px 6px rgba(0, 255, 255, 0.2),
+    0 0 12px rgba(0, 255, 255, 0.3) !important;
+
+  border: 2px solid rgba(0, 255, 255, 0.4) !important;
+}
+
+/* Empty slot stays the same */
+.color-slot.empty {
+  background-color: rgba(75, 85, 99, 0.4) !important;
+
+  background-image: 
+    linear-gradient(45deg, rgba(31, 41, 55, 0.9) 25%, transparent 25%, transparent 75%, rgba(31, 41, 55, 0.9) 75%, rgba(31, 41, 55, 0.9)),
+    linear-gradient(45deg, rgba(31, 41, 55, 0.9) 25%, transparent 25%, transparent 75%, rgba(31, 41, 55, 0.9) 75%, rgba(31, 41, 55, 0.9)) !important;
+
+  background-size: 10px 10px !important;
+  background-position: 0 0, 5px 5px !important;
+
+  border: 2px dashed rgba(0, 255, 255, 0.2) !important;
+  box-shadow:
+    inset 0 1px 3px rgba(0, 255, 255, 0.08),
+    0 0 4px rgba(0, 255, 255, 0.1) !important;
+}
+
+
+
+/* --- 3. Buttons & Interactive Elements --- */
+button {
+    background-color: rgba(30, 41, 59, 0.6) !important;
+    border-radius: 0 !important;
+    border: 1px solid var(--futuristic-border) !important;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    transition: all 0.2s ease-in-out !important;
+    text-transform: uppercase;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    color: var(--futuristic-text) !important;
+}
+
+button:hover {
+    background-color: var(--futuristic-accent) !important;
+    color: var(--futuristic-bg) !important;
+    border-color: var(--futuristic-accent) !important;
+    box-shadow: 0 0 15px var(--futuristic-accent-glow);
+}
+
+/* Special colors for important action buttons */
+#new-puzzle-btn { background-color: rgba(16, 185, 129, 0.3) !important; }
+#check-solution-btn { background-color: rgba(99, 102, 241, 0.3) !important; }
+#find-solution-btn { background-color: rgba(168, 85, 247, 0.3) !important; }
+#clear-btn { background-color: rgba(239, 68, 68, 0.3) !important; }
+
+/* Override for the 'View Solution' button color */
+#find-solution-btn.view-mode {
+    background-color: rgba(181, 181, 56, 0.4) !important;
+}
+
+
+#new-puzzle-btn:hover {
+    --neon-color: #39FF14; /* Neon Green */
+    background-color: rgba(57, 255, 20, 0.3) !important;
+    border-color: var(--neon-color) !important;
+    box-shadow: 0 0 25px var(--neon-color);
+    color: #ffffff !important;
+}
+
+#check-solution-btn:hover {
+    --neon-color: #7F5AFA; /* Neon Indigo */
+    background-color: rgba(127, 90, 250, 0.3) !important;
+    border-color: var(--neon-color) !important;
+    box-shadow: 0 0 25px var(--neon-color);
+    color: #ffffff !important;
+}
+
+#find-solution-btn:hover {
+    --neon-color: #F02BBE; /* Neon Pink/Purple */
+    background-color: rgba(240, 43, 190, 0.3) !important;
+    border-color: var(--neon-color) !important;
+    box-shadow: 0 0 25px var(--neon-color);
+    color: #ffffff !important;
+}
+
+/* A special hover for when the button is in 'View Solution' mode */
+#find-solution-btn.view-mode:hover {
+   --neon-color: #FFD700; /* Neon Gold */
+   background-color: rgba(255, 215, 0, 0.3) !important;
+   border-color: var(--neon-color) !important;
+   box-shadow: 0 0 25px var(--neon-color);
+   color: #ffffff !important;
+}
+
+#clear-btn:hover {
+    --neon-color: #FF3131; /* Neon Red */
+    background-color: rgba(255, 49, 49, 0.3) !important;
+    border-color: var(--neon-color) !important;
+    box-shadow: 0 0 25px var(--neon-color);
+    color: #ffffff !important;
+}
+
+
+/* Active mode button styling */
+button.selected {
+    background-color: var(--futuristic-accent) !important;
+    color: var(--futuristic-bg) !important;
+    box-shadow: 0 0 20px var(--futuristic-accent-glow), inset 0 0 10px rgba(0,0,0,0.4) !important;
+}
+
+/* --- 4. Grid & Borders --- */
+.grid-container {
+    background-color: rgba(12, 12, 21, 0.5) !important;
+    border: 2px solid var(--futuristic-accent) !important;
+    box-shadow: 0 0 25px var(--futuristic-accent-glow);
+}
+
+.grid-cell {
+    border-right: 1px solid rgba(0, 229, 255, 0.1) !important;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.1) !important;
+}
+
+/* Make region borders glow */
+.region-border-t { border-top: 2px solid var(--futuristic-accent) !important; }
+.region-border-b { border-bottom: 2px solid var(--futuristic-accent) !important; }
+.region-border-l { border-left: 2px solid var(--futuristic-accent) !important; }
+.region-border-r { border-right: 2px solid var(--futuristic-accent) !important; }
+
+/* --- 5. Mark & Icon Styling --- */
+.star-svg {
+    color: #00f7ff !important;
+    filter: drop-shadow(0 0 5px #0d00ff);
+}
+
+.grid-container.bw-mode .star-svg {
+    color: #00f7ff !important;
+	filter: drop-shadow(0 0 5px #0070a8);
+}
+
+.x-svg {
+    color: #FF7575 !important;
+    filter: drop-shadow(0 0 4px #FF7575);
+}
+.dot-svg {
+    color: #1788c2 !important;
+    filter: drop-shadow(0 0 4px var(--futuristic-accent));
+}
+
+.grid-container.bw-mode .dot-svg {
+	color: #42bfff !important;
+    filter: drop-shadow(0 0 4px var(--futuristic-accent));
+}
+
+/* Error state for stars */
+.grid-cell.error-star .star-svg {
+    color: var(--futuristic-error) !important;
+    filter: drop-shadow(0 0 6px #a80014);
+}
+
+/* --- 6. Modals & Settings --- */
+#load-modal .bg-gray-800, #settings-modal .bg-gray-800 {
+    background-color: var(--futuristic-panel-bg) !important;
+    border: 1px solid var(--futuristic-border) !important;
+    backdrop-filter: blur(10px);
+    border-radius: 0 !important;
+}
+
+#settings-modal-close-btn{
+	line-height: .7;
+	width: 20px;
+}
+
+#settings-modal-close-btn:hover, #modal-close-btn:hover {
+    color: var(--futuristic-accent);
+    transform: rotate(180deg);
+}
+
+.save-item {
+    background-color: rgba(0, 229, 255, 0.05) !important;
+    border-left-color: var(--futuristic-accent) !important;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    border-radius: 0 !important;
+}
+.save-item:hover {
+    background-color: rgba(0, 229, 255, 0.15) !important;
+    border-left-color: var(--futuristic-accent) !important;
+}
+
+.setting-item {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    border-radius: 0 !important;
+}
+
+/* Update the toggle switches in Settings */
+.toggle-switch .slider {
+    background-color: #1f2937 !important;
+}
+.toggle-switch input:checked + .slider {
+    background-color: var(--futuristic-accent) !important;
+}
+.toggle-switch .slider:before {
+    background-color: #9CA3AF !important;
+}
+.toggle-switch input:checked + .slider:before {
+    background-color: var(--futuristic-bg) !important;
+}
