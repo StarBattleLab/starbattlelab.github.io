@@ -3,7 +3,7 @@
  * Title: Star Battle Puzzle Game State and Configuration
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.2
+ * @version 1.0.3
  * *-------------------------------------------------------------------------------
  * This script initializes and manages the entire state for a Star Battle puzzle
  * web application. It defines the central `state` object, which holds all dynamic
@@ -146,7 +146,7 @@ const SBN_B64_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqr
 const SBN_CHAR_TO_INT = Object.fromEntries(Array.from(SBN_B64_ALPHABET).map((c, i) => [c, i]));
 const SBN_INT_TO_CHAR = Object.fromEntries(Array.from(SBN_B64_ALPHABET).map((c, i) => [i, c]));
 const SBN_CODE_TO_DIM_MAP = {
-    '55': 5,  '66': 6,  '77': 7,  '88': 8,  '99': 9, 'AA': 10, 'BB': 11, 'CC': 12, 'DD': 13,
+    '44': 4,  '55': 5,  '66': 6,  '77': 7,  '88': 8,  '99': 9, 'AA': 10, 'BB': 11, 'CC': 12, 'DD': 13,
     'EE': 14, 'FF': 15, 'GG': 16, 'HH': 17, 'II': 18, 'JJ': 19, 'KK': 20, 'LL': 21, 'MM': 22,
     'NN': 23, 'OO': 24, 'PP': 25
 };

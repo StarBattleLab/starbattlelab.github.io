@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Core Game Logic
  *
  * @author Isaiah Tadrous
- * @version 1.1.2
+ * @version 1.1.3
  *
  * -------------------------------------------------------------------------------
  *
@@ -128,6 +128,7 @@ function placeStarAndAutoX(r, c) {
         pushHistory({ type: 'compoundMark', changes: finalChanges });
         renderAllMarks();
         updateErrorHighlightingUI(); // Update UI to reflect changes and error highlighting.
+        updateUrlWithSbn();
     }
 }
 
@@ -178,6 +179,7 @@ function removeStarAndAutoX(r, c) {
         }
     }
     updateErrorHighlightingUI(); // Update UI to reflect changes and error highlighting.
+    updateUrlWithSbn();
 }
 
 // --- COLOR PICKER LOGIC ---
@@ -366,6 +368,7 @@ function undo() {
 
     modeHistory.pointer--; // Move the history pointer back.
     updateUndoRedoButtons(); // Update button states.
+    updateUrlWithSbn();
 }
 
 /**
@@ -429,4 +432,5 @@ function redo() {
             break;
     }
     updateUndoRedoButtons(); // Update button states.
+    updateUrlWithSbn();
 }

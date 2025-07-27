@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Interactions and State API
  *
  * @author Isaiah Tadrous
- * @version 1.1.1
+ * @version 1.1.3
  *
  * -------------------------------------------------------------------------------
  *
@@ -274,6 +274,7 @@ function handleMouseUp(e) {
                 if (fromState === 0) {
                     if (applyMarkChange(r, c, 0, 2)) {
                         pushHistory({ type: 'mark', r, c, from: 0, to: 2 });
+                        updateUrlWithSbn();
                     }
                 } else if (fromState === 2) {
                     placeStarAndAutoX(r, c);
@@ -317,5 +318,31 @@ function handleMouseUp(e) {
     drawCtx.globalCompositeOperation = 'source-over';
     if (state.bufferCtx) {
         state.bufferCtx.globalCompositeOperation = 'source-over';
+    }
+}
+/**
+ * Generates an SBN string from the current puzzle state and updates the browser's URL.
+ * This creates a live, shareable link without reloading the page.
+ */
+function updateUrlWithSbn() {
+    // A safeguard to prevent running before a puzzle is fully loaded.
+    if (!state.regionGrid || state.regionGrid.length === 0) {
+        return;
+    }
+
+    try {
+        // Generate the SBN string, including the player's grid and mark history.
+        const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
+
+        if (sbnString) {
+            // Construct the new URL with the latest SBN.
+            const newUrl = `${window.location.pathname}?sbn=${sbnString}`;
+            // Update the URL in the browser's address bar.
+            // replaceState is used to avoid creating a new entry in the browser's history for every move.
+            window.history.replaceState({}, '', newUrl);
+        }
+    } catch (error) {
+        // Log errors to the console without interrupting the user.
+        console.error("Failed to update URL with SBN:", error);
     }
 }
