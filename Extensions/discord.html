@@ -1,0 +1,860 @@
+<!-- ===============================================================================
+
+  *                                                                              
+  *  Title: Parse the Stars - Discord Community Hub                              
+  *                                                                              
+  *  @author Isaiah Tadrous                                                       
+  *  @version 1.0.0                                                               
+  *                                                                              
+  * -------------------------------------------------------------------------------
+  *                                                                              
+  *  Description:                                                                
+  *                                                                              
+  *  This HTML file runs a single-page web application that acts as a community  
+  *  hub for the "Parse the Stars" Discord server, which focuses on the Star     
+  *  Battle puzzle game. Built using React and styled with Tailwind CSS, the     
+  *  app loads entirely in the browser from a single HTML file.                  
+  *                                                                              
+  *  Key Features include:                                                       
+  *  - A persistent navigation sidebar with branding and server links            
+  *  - Client-side routing to dynamically display pages without reloads          
+  *  - Dedicated pages for Home and Server Rules                                 
+  *  - Three interactive forms for submitting strategies, reporting bugs, and    
+  *    requesting features                                                       
+  *                                                                              
+  *  All forms are handled by a reusable GenericForm component that supports     
+  *  file uploads, live previews, and submits data to a backend on               
+  *  PythonAnywhere. The system provides success/failure feedback for each       
+  *  submission.                                                                 
+  *                                                                              
+  ********************************************************************************
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Discord Community Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        }
+        @keyframes fade-in-up {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+        animation: fade-in-up 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+        }
+        .transparent-chars {
+        color: transparent;
+        }
+    </style>
+</head>
+
+<body class="bg-zinc-950">
+    <div id="root"></div>
+    <script type="text/babel">
+		const {
+			useState,
+			useEffect
+		} = React;
+		const BACKEND_URL = "https://starbattle.onrender.com";
+		const HomeIcon = () => < svg xmlns = "http://www.w3.org/2000/svg"
+		className = "h-6 w-6"
+		fill = "none"
+		viewBox = "0 0 24 24"
+		stroke = "currentColor"
+		strokeWidth = {
+			2
+		} > < path strokeLinecap = "round"
+		strokeLinejoin = "round"
+		d = "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" / > < /svg>;
+		const RulesIcon = () => < svg xmlns = "http://www.w3.org/2000/svg"
+		className = "h-6 w-6"
+		fill = "none"
+		viewBox = "0 0 24 24"
+		stroke = "currentColor"
+		strokeWidth = {
+			2
+		} > < path strokeLinecap = "round"
+		strokeLinejoin = "round"
+		d = "M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" / > < /svg>;
+		const StrategyIcon = () => < svg xmlns = "http://www.w3.org/2000/svg"
+		className = "h-6 w-6"
+		fill = "none"
+		viewBox = "0 0 24 24"
+		stroke = "currentColor"
+		strokeWidth = {
+			2
+		} > < path strokeLinecap = "round"
+		strokeLinejoin = "round"
+		d = "M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" / > < /svg>;
+		const BugIcon = () => ( <
+			svg xmlns = "http://www.w3.org/2000/svg"
+			className = "h-8 w-8"
+			viewBox = "3 0 24 24"
+			fill = "none" >
+			<
+			path fillRule = "evenodd"
+			clipRule = "evenodd"
+			d = "M8 9.5V13.517C8 15.7261 9.79086 17.517 12 17.517C14.2091 17.517 16 15.7261 16 13.517V9.5H8Z"
+			stroke = "currentColor"
+			strokeWidth = "1.5"
+			strokeLinecap = "round"
+			strokeLinejoin = "round"
+			fill = "none" /
+			>
+			<
+			path d = "M9.25 9.5C9.25 9.91421 9.58579 10.25 10 10.25C10.4142 10.25 10.75 9.91421 10.75 9.5H9.25ZM13.25 9.5C13.25 9.91421 13.5858 10.25 14 10.25C14.4142 10.25 14.75 9.91421 14.75 9.5H13.25ZM12.75 13.517C12.75 13.1028 12.4142 12.767 12 12.767C11.5858 12.767 11.25 13.1028 11.25 13.517H12.75ZM11.25 17.534C11.25 17.9482 11.5858 18.284 12 18.284C12.4142 18.284 12.75 17.9482 12.75 17.534H11.25ZM5 12.767C4.58579 12.767 4.25 13.1028 4.25 13.517C4.25 13.9312 4.58579 14.267 5 14.267V12.767ZM8 14.267C8.41421 14.267 8.75 13.9312 8.75 13.517C8.75 13.1028 8.41421 12.767 8 12.767V14.267ZM6.53205 6.95839C6.2401 6.66455 5.76523 6.66301 5.47139 6.95495C5.17755 7.2469 5.17601 7.72177 5.46795 8.01561L6.53205 6.95839ZM7.46795 10.0286C7.7599 10.3225 8.23477 10.324 8.52861 10.0321C8.82245 9.7401 8.82399 9.26523 8.53205 8.97139L7.46795 10.0286ZM9.70345 16.8862C9.99572 16.5927 9.99472 16.1178 9.70121 15.8255C9.40769 15.5333 8.93282 15.5343 8.64055 15.8278L9.70345 16.8862ZM6.51955 17.9578C6.22728 18.2513 6.22828 18.7262 6.52179 19.0185C6.81531 19.3107 7.29018 19.3097 7.58245 19.0162L6.51955 17.9578ZM19 14.267C19.4142 14.267 19.75 13.9312 19.75 13.517C19.75 13.1028 19.4142 12.767 19 12.767V14.267ZM16 12.767C15.5858 12.767 15.25 13.1028 15.25 13.517C15.25 13.9312 15.5858 14.267 16 14.267V12.767ZM18.532 8.01561C18.824 7.72177 18.8224 7.2469 18.5286 6.95495C18.2348 6.66301 17.7599 6.66455 17.468 6.95839L18.532 8.01561ZM15.468 8.97139C15.176 9.26523 15.1776 9.7401 15.4714 10.0321C15.7652 10.324 16.2401 10.3225 16.532 10.0286L15.468 8.97139ZM15.3595 15.8278C15.0672 15.5343 14.5923 15.5333 14.2988 15.8255C14.0053 16.1178 14.0043 16.5927 14.2965 16.8862L15.3595 15.8278ZM16.4175 19.0162C16.7098 19.3097 17.1847 19.3107 17.4782 19.0185C17.7717 18.7262 17.7727 18.2513 17.4805 17.9578L16.4175 19.0162ZM10.75 9.5V8.5H9.25V9.5H10.75ZM10.75 8.5C10.75 7.80964 11.3096 7.25 12 7.25V5.75C10.4812 5.75 9.25 6.98122 9.25 8.5H10.75ZM12 7.25C12.6904 7.25 13.25 7.80964 13.25 8.5H14.75C14.75 6.98122 13.5188 5.75 12 5.75V7.25ZM13.25 8.5V9.5H14.75V8.5H13.25ZM11.25 13.517V17.534H12.75V13.517H11.25ZM5 14.267H8V12.767H5V14.267ZM5.46795 8.01561L7.46795 10.0286L8.53205 8.97139L6.53205 6.95839L5.46795 8.01561ZM8.64055 15.8278L6.51955 17.9578L7.58245 19.0162L9.70345 16.8862L8.64055 15.8278ZM19 12.767H16V14.267H19V12.767ZM17.468 6.95839L15.468 8.97139L16.532 10.0286L18.532 8.01561L17.468 6.95839ZM14.2965 16.8862L16.4175 19.0162L17.4805 17.9578L15.3595 15.8278L14.2965 16.8862Z"
+			fill = "currentColor" /
+			>
+			<
+			/svg>
+		);
+		const FeatureIcon = () => < svg xmlns = "http://www.w3.org/2000/svg"
+		className = "h-6 w-6"
+		fill = "none"
+		viewBox = "0 0 24 24"
+		stroke = "currentColor"
+		strokeWidth = {
+			2
+		} > < path strokeLinecap = "round"
+		strokeLinejoin = "round"
+		d = "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" / > < /svg>;
+
+		const App = () => {
+			const [currentPage, setCurrentPage] = useState('home');
+
+			useEffect(() => {
+				const urlParams = new URLSearchParams(window.location.search);
+				const page = urlParams.get('page');
+				const validPages = ['home', 'rules', 'submit-strat', 'bug-report', 'feature-request'];
+				if (page && validPages.includes(page)) {
+					setCurrentPage(page);
+				}
+			}, []);
+
+			const renderPage = () => {
+				switch (currentPage) {
+					case 'home':
+						return <HomePage setCurrentPage = {
+							setCurrentPage
+						}
+						/>;
+					case 'rules':
+						return <RulesPage / > ;
+					case 'submit-strat':
+						return <SubmitStratForm / > ;
+					case 'bug-report':
+						return <BugReportForm / > ;
+					case 'feature-request':
+						return <FeatureRequestForm / > ;
+					default:
+						return <HomePage setCurrentPage = {
+							setCurrentPage
+						}
+						/>;
+				}
+			};
+
+			return ( <
+				div className = "min-h-screen bg-zinc-950 text-zinc-300 flex flex-col md:flex-row" >
+				<
+				Sidebar currentPage = {
+					currentPage
+				}
+				setCurrentPage = {
+					setCurrentPage
+				}
+				/> <
+				main className = "flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto" > {
+					renderPage()
+				} <
+				/main> <
+				/div>
+			);
+		};
+
+		const Sidebar = ({
+			currentPage,
+			setCurrentPage
+		}) => {
+			const navItems = [{
+					name: 'Home',
+					id: 'home',
+					icon: < HomeIcon / >
+				},
+				{
+					name: 'Server Rules',
+					id: 'rules',
+					icon: < RulesIcon / >
+				},
+				{
+					name: 'Submit Strategy',
+					id: 'submit-strat',
+					icon: < StrategyIcon / >
+				},
+				{
+					name: '<span class="transparent-chars">ii</span>Report a Bug',
+					id: 'bug-report',
+					icon: < BugIcon / >
+				},
+				{
+					name: 'Feature Request',
+					id: 'feature-request',
+					icon: < FeatureIcon / >
+				},
+			];
+
+			return ( <
+				aside className = "w-full md:w-72 bg-zinc-900 p-6 flex flex-col border-b md:border-b-0 md:border-r border-zinc-800 md:h-screen md:sticky md:top-0" >
+				<
+				div className = "flex items-center gap-3 mb-8" >
+				<
+				img src = "https://cdn.discordapp.com/icons/1392611643476672583/b4b4aa5c8b8ed72ce9d8e6e77ae40664.png?size=60&quality=lossless"
+				alt = "Logo"
+				className = "w-12 h-12 rounded-full" / >
+				<
+				h1 className = "text-xl font-bold text-white" > Parse the Stars < /h1> <
+				/div> <
+				nav className = "flex-grow" >
+				<
+				ul className = "space-y-2" > {
+					navItems.map((item) => ( <
+						li key = {
+							item.id
+						} >
+						<
+						button onClick = {
+							() => setCurrentPage(item.id)
+						}
+						className = {
+							`flex items-center w-full px-4 py-3 rounded-lg transition-all duration-200 ease-in-out text-left group ${currentPage === item.id ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'}`
+						} >
+						<
+						span className = {
+							`transition-colors duration-200 ${currentPage === item.id ? 'text-indigo-400' : 'text-zinc-500 group-hover:text-zinc-300'}`
+						} > {
+							item.icon
+						} <
+						/span> <
+						span className = {
+							`text-md font-medium ${item.id === 'bug-report' ? 'ml-0' : 'ml-4'}`
+						}
+						dangerouslySetInnerHTML = {
+							{
+								__html: item.name
+							}
+						} >
+						< /span> <
+						/button> <
+						/li>
+					))
+				} <
+				/ul> <
+				/nav> <
+				div className = "mt-auto pt-6" >
+				<
+				div className = "p-5 bg-gradient-to-br from-zinc-800 to-zinc-900/50 rounded-lg text-center border border-zinc-700" >
+				<
+				h3 className = "text-lg font-semibold mb-3 text-white" > Join Our Discord! < /h3> <
+				p className = "text-sm text-zinc-400 mb-4" > Connect with the community and get real - time updates. < /p> <
+				a href = "https://discord.gg/TMxPKngfyY"
+				target = "_blank"
+				rel = "noopener noreferrer"
+				className = "inline-flex items-center justify-center px-6 py-2.5 bg-gradient-to-r from-indigo-500 to-violet-500 text-white font-semibold rounded-lg shadow-lg transform transition-transform duration-200 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-75" >
+				Join Now <
+				/a> <
+				/div> <
+				/div> <
+				/aside>
+			);
+		};
+
+		const HomePage = ({
+			setCurrentPage
+		}) => ( <
+			div className = "space-y-8 animate-fade-in-up" >
+			<
+			div >
+			<
+			h2 className = "text-5xl font-bold tracking-tighter text-white mb-3" > Welcome to our Hub < /h2> <
+			p className = "text-lg text-zinc-400 max-w-3xl" > This is your central hub
+			for all things related to our vibrant Discord server.Share strategies, report bugs, suggest features, or just check the rules. < /p> <
+			/div>
+
+			<
+			div className = "grid grid-cols-1 lg:grid-cols-2 gap-6" >
+			<
+			div className = "bg-zinc-900 p-6 rounded-xl border border-zinc-800" >
+			<
+			h3 className = "text-2xl font-bold text-white mb-4" > What We Offer < /h3> <
+			ul className = "space-y-3 text-zinc-400" >
+			<
+			li className = "flex items-start" > < span className = "text-indigo-400 mr-3 mt-1" > ✓ < /span>Dedicated channels for feedback.</li >
+			<
+			li className = "flex items-start" > < span className = "text-indigo-400 mr-3 mt-1" > ✓ < /span>Active puzzle discussion.</li >
+			<
+			li className = "flex items-start" > < span className = "text-indigo-400 mr-3 mt-1" > ✓ < /span>Professional supportive environment.</li >
+			<
+			li className = "flex items-start" > < span className = "text-indigo-400 mr-3 mt-1" > ✓ < /span>A direct line to the development team.</li >
+			<
+			/ul> <
+			/div> <
+			div className = "bg-zinc-900 p-6 rounded-xl border border-zinc-800" >
+			<
+			h3 className = "text-2xl font-bold text-white mb-4" > Our Mission < /h3> <
+			p className = "text-zinc-400" > Our mission is to create the ultimate all-in-one hub
+			for the Star Battle community, perfect
+			for both newcomers and seasoned experts.This is a passion-driven, open-source project where we hope everyone can share, learn, and collaborate on all things Star Battle! < /p> <
+			/div> <
+			/div>
+
+			<
+			div className = "bg-zinc-900 p-8 rounded-xl text-center border border-zinc-800" >
+			<
+			h3 className = "text-2xl font-bold text-white mb-4" > Ready to dive in ? < /h3> <
+			div className = "flex flex-col sm:flex-row justify-center items-center gap-4" >
+			<
+			button onClick = {
+				() => setCurrentPage('submit-strat')
+			}
+			className = "w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-indigo-500 to-violet-500 hover:from-indigo-600 hover:to-violet-600 text-white font-bold rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 text-lg" >
+			Submit a Strategy <
+			/button> <
+			button onClick = {
+				() => setCurrentPage('bug-report')
+			}
+			className = "w-full sm:w-auto inline-flex items-center justify-center px-8 py-3 bg-zinc-700 hover:bg-zinc-600 text-white font-bold rounded-lg shadow-lg transform transition-transform duration-300 hover:scale-105 text-lg" >
+			Report a Bug <
+			/button> <
+			/div> <
+			/div> <
+			/div>
+		);
+
+		const RulesPage = () => {
+			const rules = [{
+					title: "1. Be Respectful & Kind",
+					content: "Treat every mind well. No harassment, hate speech, discrimination, or personal attacks. We're all solving this puzzle together."
+				},
+				{
+					title: "2. Keep It Constructive",
+					content: "Bugs? Suggestions? Questions? Great! Just make sure your feedback is as thoughtful as your strategies. Kindness is part of the solution."
+				},
+				{
+					title: "3. Stay On-Topic",
+					content: "Like a well-placed star, your messages belong in the right spot. Use designated channels for specific topics."
+				},
+				{
+					title: "4. No Spam or Promotions",
+					content: "Don’t flood the grid. Refrain from spamming, over-posting, or promoting content without mod approval."
+				},
+				{
+					title: "5. Keep It SFW",
+					content: "This is a Safe For Work server. No NSFW or offensive content — ever."
+				},
+				{
+					title: "6. Respect Privacy",
+					content: "Your logic may be public, but your personal info shouldn't be. Don’t share private or identifying information."
+				},
+				{
+					title: "7. Follow Discord’s ToS",
+					content: "All members must abide by Discord’s Terms of Service and Community Guidelines."
+				},
+				{
+					title: "8. Mod Decisions Are Final",
+					content: "If you have concerns, bring them up respectfully via DM."
+				},
+			];
+
+			return ( <
+				div className = "bg-zinc-900 p-6 md:p-8 rounded-xl shadow-2xl animate-fade-in-up border border-zinc-800" >
+				<
+				h2 className = "text-4xl font-bold text-white mb-2" > Server Rules < /h2> <
+				p className = "text-zinc-400 mb-8" > Please read and follow these rules to ensure a friendly and productive environment
+				for everyone. < /p> <
+				div className = "grid grid-cols-1 md:grid-cols-2 gap-6" > {
+					rules.map(rule => ( <
+						div key = {
+							rule.title
+						}
+						className = "bg-zinc-800/50 p-5 rounded-lg border border-zinc-700" >
+						<
+						h3 className = "text-xl font-semibold text-indigo-400 mb-2" > {
+							rule.title
+						} < /h3> <
+						p className = "text-zinc-400" > {
+							rule.content
+						} < /p> <
+						/div>
+					))
+				} <
+				/div> <
+				p className = "mt-8 text-md italic text-zinc-500" > By participating, you 're helping create a server that'
+				s as fun to be in as it is to solve puzzles in .Welcome aboard! < /p> <
+				/div>
+			);
+		};
+
+		const GenericForm = ({
+				formType,
+				title,
+				description,
+				fields,
+				submitButtonText
+			}) => {
+				const [formData, setFormData] = useState({});
+				const [imageEntries, setImageEntries] = useState([]);
+				const [message, setMessage] = useState('');
+				const [messageType, setMessageType] = useState('');
+				const [isSubmitting, setIsSubmitting] = useState(false);
+
+				const handleImageTitleChange = (id, value) => {
+					setImageEntries(prev => prev.map(entry =>
+						entry.id === id ? {
+							...entry,
+							title: value
+						} : entry
+					));
+				};
+
+				const handleChange = (e) => {
+					const {
+						name,
+						value
+					} = e.target;
+					setFormData(prev => ({
+						...prev,
+						[name]: value
+					}));
+				};
+
+				const handleFileChange = (e) => {
+					const files = Array.from(e.target.files);
+					const newEntries = files.map(file => ({
+						id: Date.now() + Math.random(),
+						file: file,
+						description: '',
+						title: ''
+					}));
+					setImageEntries(prev => [...prev, ...newEntries]);
+				};
+
+				const handleImageDescriptionChange = (id, value) => {
+					setImageEntries(prev => prev.map(entry =>
+						entry.id === id ? {
+							...entry,
+							description: value
+						} : entry
+					));
+				};
+
+				const handleRemoveImage = (id) => {
+					setImageEntries(prev => prev.filter(entry => entry.id !== id));
+				};
+				const handleSubmit = async (e) => {
+					e.preventDefault();
+					setIsSubmitting(true);
+					setMessage('');
+
+					const dataForBackend = new FormData();
+					const payload = {
+						...formData,
+						images: imageEntries.map(entry => ({
+							filename: entry.file.name,
+							description: entry.description,
+							title: entry.title,
+							isImage: entry.file.type.startsWith('image/')
+						}))
+					};
+					dataForBackend.append('payload_json', JSON.stringify(payload));
+					dataForBackend.append('timestamp', new Date().toISOString());
+
+					imageEntries.forEach((entry, index) => {
+						dataForBackend.append(`file_${index}`, entry.file, entry.file.name);
+					});
+
+					try {
+						const response = await fetch(`${BACKEND_URL}/api/submit/${formType}`, {
+							method: 'POST',
+							body: dataForBackend,
+						});
+
+						if (response.ok) {
+							setMessage('Submission successful. Thank you!');
+							setMessageType('success');
+							setFormData({});
+							setImageEntries([]);
+							e.target.reset();
+						} else {
+							const errorData = await response.json();
+							setMessage(`Submission failed: ${errorData.error || 'Please try again.'}`);
+							setMessageType('error');
+						}
+					} catch (error) {
+						setMessage(`A client-side error occurred: ${error.message}.`);
+						setMessageType('error');
+					} finally {
+						setIsSubmitting(false);
+						setTimeout(() => setMessage(''), 7000);
+					}
+				};
+
+				return ( <
+						div className = "bg-zinc-900 p-6 md:p-8 rounded-xl shadow-2xl animate-fade-in-up border border-zinc-800" >
+						<
+						h2 className = "text-4xl font-bold text-white mb-2" > {
+							title
+						} < /h2> {
+							description && < p className = "text-zinc-400 text-lg mb-8" > {
+									description
+								} < /p>}
+
+								<
+								form onSubmit = {
+									handleSubmit
+								}
+							className = "space-y-6" > {
+								fields.map(field => {
+										const InputComponent = field.type === 'textarea' ? 'textarea' : 'input';
+										return ( <
+											div key = {
+												field.name
+											} >
+											<
+											label htmlFor = {
+												field.name
+											}
+											className = "block text-zinc-300 text-sm font-medium mb-2" > {
+												field.label
+											} {
+												field.required && < span className = "text-red-500" > * < /span>} <
+													/label> <
+													InputComponent
+												type = {
+													field.type
+												}
+												id = {
+													field.name
+												}
+												name = {
+													field.name
+												}
+												value = {
+													formData[field.name] || ''
+												}
+												onChange = {
+													handleChange
+												}
+												required = {
+													field.required
+												}
+												maxLength = {
+													field.maxLength
+												}
+												rows = {
+													field.rows
+												}
+												className = "shadow-sm appearance-none border border-zinc-700 rounded-lg w-full py-3 px-4 bg-zinc-800 text-zinc-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 placeholder-zinc-500"
+												placeholder = {
+													field.placeholder
+												}
+												/> {
+													field.helpText && < p className = "mt-2 text-xs text-zinc-500" > {
+															field.helpText
+														} < /p>} <
+														/div>
+												);
+											})
+									}
+
+									<
+									div >
+									<
+									label className = "block text-zinc-300 text-sm font-medium mb-2" > Strategy Steps & Images(Optional) < /label> <
+									div className = "space-y-4" > {
+										imageEntries.map((entry, index) => ( <
+											div key = {
+												entry.id
+											}
+											className = "bg-zinc-800 p-4 rounded-lg border border-zinc-700 flex flex-col sm:flex-row items-start gap-4" >
+											<
+											div className = "flex-shrink-0 w-full sm:w-32 h-32 sm:h-auto bg-zinc-700 rounded flex items-center justify-center" > {
+												entry.file && entry.file.type.startsWith('image/') ? ( <
+													img src = {
+														URL.createObjectURL(entry.file)
+													}
+													alt = "Preview"
+													className = "w-32 h-32 object-cover rounded" / >
+												) : ( <
+													span className = "text-zinc-400 text-xs text-center p-2" > 📄 < br / > {
+														entry.file ? entry.file.name : 'No file'
+													} < /span>
+												)
+											} <
+											/div> <
+											div className = "flex-grow w-full" >
+											<
+											label htmlFor = {
+												`img-title-${entry.id}`
+											}
+											className = "text-zinc-300 text-xs font-medium mb-1 block" > Title(Optional) < /label> <
+											input id = {
+												`img-title-${entry.id}`
+											}
+											type = "text"
+											value = {
+												entry.title
+											}
+											onChange = {
+												(e) => handleImageTitleChange(entry.id, e.target.value)
+											}
+											placeholder = "A short title for this image..."
+											maxLength = "100"
+											className = "shadow-sm appearance-none border border-zinc-600 rounded-lg w-full py-2 px-3 bg-zinc-700 text-zinc-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 mb-3" /
+											>
+											<
+											label htmlFor = {
+												`img-desc-${entry.id}`
+											}
+											className = "text-zinc-300 text-xs font-medium mb-1 block" > Description < /label> <
+											textarea id = {
+												`img-desc-${entry.id}`
+											}
+											value = {
+												entry.description
+											}
+											onChange = {
+												(e) => handleImageDescriptionChange(entry.id, e.target.value)
+											}
+											placeholder = "Describe what's happening in this image..."
+											rows = "3"
+											maxLength = "500"
+											className = "shadow-sm appearance-none border border-zinc-600 rounded-lg w-full py-2 px-3 bg-zinc-700 text-zinc-200 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200" /
+											>
+											<
+											/div>
+
+											<
+											button type = "button"
+											onClick = {
+												() => handleRemoveImage(entry.id)
+											}
+											className = "flex-shrink-0 bg-red-600/20 text-red-400 hover:bg-red-500 hover:text-white rounded-full h-8 w-8 flex items-center justify-center transition-colors duration-200 self-center sm:self-start" >
+											&
+											times; <
+											/button> <
+											/div>
+										))
+									} <
+									/div> <
+									label htmlFor = "attachments"
+									className = "relative flex items-center justify-center w-full px-4 py-3 mt-4 bg-zinc-800 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer hover:bg-zinc-700 hover:border-indigo-500 transition-all duration-200" >
+									<
+									svg className = "w-6 h-6 text-zinc-500 mr-3"
+									fill = "none"
+									stroke = "currentColor"
+									viewBox = "0 0 24 24"
+									xmlns = "http://www.w3.org/2000/svg" > < path strokeLinecap = "round"
+									strokeLinejoin = "round"
+									strokeWidth = "2"
+									d = "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" > < /path></svg >
+									<
+									span className = "text-sm font-semibold text-zinc-400" > {
+										imageEntries.length > 0 ? 'Add more files...' : 'Click to upload files'
+									} <
+									/span> <
+									/label> <
+									input type = "file"
+									id = "attachments"
+									name = "attachments"
+									onChange = {
+										handleFileChange
+									}
+									multiple accept = ".jpg, .jpeg, .png, .gif, .mp4, .webm, .mov, .log, .txt"
+									className = "hidden" / >
+									<
+									/div>
+
+									<
+									button type = "submit"
+									className = {
+										`w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg transform transition-all duration-200 hover:scale-102 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-900 focus:ring-indigo-500 text-lg ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`
+									}
+									disabled = {
+										isSubmitting
+									} > {
+										isSubmitting ? 'Submitting...' : submitButtonText
+									} <
+									/button> <
+									/form>
+
+									{
+										message && ( <
+											div className = {
+												`mt-6 p-4 rounded-lg flex items-center text-sm font-medium animate-fade-in-up ${messageType === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`
+											} > {
+												messageType === 'success' ? '✔️' : '❌'
+											} < span className = "ml-3" > {
+												message
+											} < /span> <
+											/div>
+										)
+									} <
+									/div>
+								);
+							};
+
+							const SubmitStratForm = () => < GenericForm
+							formType = "strategy"
+							title = "Submit Your Strategy"
+							description = "🧠 Found a clever way to solve a puzzle? Share your strategy with the community! Fill out the form below to post it in our strategies channel."
+							submitButtonText = "Submit Strategy"
+							fields = {
+								[{
+										name: 'puzzleSBN',
+										label: 'Puzzle SBN',
+										type: 'text',
+										required: true,
+										placeholder: 'e.g. SBN: AA2e3Lg...~h:0112:1',
+										maxLength: 100
+									},
+									{
+										name: 'describeStrategy',
+										label: 'Describe Your Strategy',
+										type: 'textarea',
+										required: true,
+										placeholder: 'Explain your approach and how it solves the puzzle.',
+										rows: 6,
+										maxLength: 1500
+									},
+									{
+										name: 'uniqueEffective',
+										label: 'What makes this strategy unique or effective? (Optional)',
+										type: 'textarea',
+										placeholder: 'Does it use symmetry? Eliminate options? Speed things up?',
+										rows: 3,
+										maxLength: 1000
+									},
+									{
+										name: 'discordTag',
+										label: 'Your Discord Tag (Optional)',
+										type: 'text',
+										placeholder: 'e.g., GamerTag#1234'
+									}
+								]
+							}
+							/>;
+
+							const BugReportForm = () => < GenericForm
+							formType = "bug_report"
+							title = "Report a Bug"
+							description = "🐞 Found something that's not working as expected? Please provide as much detail as possible so we can squash it!"
+							submitButtonText = "Submit Bug Report"
+							fields = {
+								[{
+										name: 'bugTitle',
+										label: 'Bug Title',
+										type: 'text',
+										required: true,
+										placeholder: 'A brief summary of the issue.',
+										maxLength: 150
+									},
+									{
+										name: 'stepsToReproduce',
+										label: 'Steps to Reproduce',
+										type: 'textarea',
+										required: true,
+										placeholder: '1. Go to...\n2. Click on...\n3. See error...',
+										rows: 6,
+										maxLength: 2000
+									},
+									{
+										name: 'expectedBehavior',
+										label: 'Expected Behavior',
+										type: 'textarea',
+										required: true,
+										placeholder: 'What did you expect to happen?',
+										rows: 3,
+										maxLength: 1000
+									},
+									{
+										name: 'actualBehavior',
+										label: 'Actual Behavior',
+										type: 'textarea',
+										required: true,
+										placeholder: 'What actually happened?',
+										rows: 3,
+										maxLength: 1000
+									},
+									{
+										name: 'discordTag',
+										label: 'Your Discord Tag (Optional)',
+										type: 'text',
+										placeholder: 'e.g., GamerTag#1234'
+									}
+								]
+							}
+							/>;
+
+							const FeatureRequestForm = () => < GenericForm
+							formType = "feature_request"
+							title = "Request a Feature"
+							description = "💡 Have a brilliant idea for a new feature or an improvement? We'd love to hear it! Describe your idea below."
+							submitButtonText = "Submit Feature Request"
+							fields = {
+								[{
+										name: 'featureTitle',
+										label: 'Feature Title',
+										type: 'text',
+										required: true,
+										placeholder: 'A short name for your idea.',
+										maxLength: 150
+									},
+									{
+										name: 'problemToSolve',
+										label: 'What problem does this feature solve?',
+										type: 'textarea',
+										required: true,
+										placeholder: 'Describe the user pain point or opportunity.',
+										rows: 4,
+										maxLength: 2000
+									},
+									{
+										name: 'suggestedSolution',
+										label: 'How would this feature work?',
+										type: 'textarea',
+										required: true,
+										placeholder: 'Describe your vision for the solution.',
+										rows: 6,
+										maxLength: 2000
+									},
+									{
+										name: 'discordTag',
+										label: 'Your Discord Tag (Optional)',
+										type: 'text',
+										placeholder: 'e.g., GamerTag#1234'
+									}
+								]
+							}
+							/>;
+
+							const root = ReactDOM.createRoot(document.getElementById('root'));
+							root.render( < App / > );
+      </script>
+</body>
+
+</html>
