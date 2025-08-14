@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Main Application Logic
  *
  * @author Isaiah Tadrous
- * @version 1.9.1
+ * @version 1.9.2
  *
  * -------------------------------------------------------------------------------
  *
@@ -316,10 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
     /**
      * Prompts the user for a puzzle string and attempts to import it.
      */
-    async function handleImport() {
-        const importString = prompt("Paste your puzzle string (SBN or Web Task format):");
-        await importPuzzleString(importString);
-    }
+	function handleImport() {
+		const container = document.getElementById('importerContainer');
+		if (container) {
+			container.style.display = 'flex'; // Use flex to center the content as designed
+		}
+	}
 
     /**
      * Exports the current puzzle state to an SBN string using local logic.
@@ -422,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const futuristicThemeLink = document.getElementById('futuristic-theme');
         const futuristicThemeToggle = document.getElementById('futuristic-theme-toggle');
         populateSizeSelector();
+		setupImportInterface({ importPuzzleString, setStatus });
 		
 		// This is a temporary measure to prevent users from accidentally losing their work until backend storage is implemented.
 		window.addEventListener('beforeunload', (e) => {
@@ -705,3 +708,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init(); // Run the initialization function when the DOM is ready.
 });
+
