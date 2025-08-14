@@ -144,6 +144,18 @@
 				if (page && validPages.includes(page)) {
 					setCurrentPage(page);
 				}
+				if (!sessionStorage.getItem('aPinged')) {
+                const wping = async () => {
+                    try {
+                        await fetch(`${BACKEND_URL}/ping`, {
+                            method: 'GET',
+                            signal: AbortSignal.timeout(10)
+                        });
+                        sessionStorage.setItem('aPinged', 'true');
+                    } catch (error) {}
+                };
+                wping();
+            }
 			}, []);
 
 			const renderPage = () => {
@@ -856,5 +868,6 @@
 							root.render( < App / > );
       </script>
 </body>
+
 
 </html>
