@@ -230,7 +230,7 @@ function setupImportInterface({ importPuzzleString: importPuzzleString, setStatu
 					<label for="puzzleStringInput" style="display: block; font-size: 1rem; font-weight: 500; color: #9ca3af; margin-bottom: 0.5rem;">Paste your puzzle string (SBN or Web Task format):</label>
 					<div style="display: flex; gap: 0.5rem;">
 						<textarea id="puzzleStringInput" style="display: block; height: 2.8rem; line-height: 2.8rem; padding: 0 1rem; overflow: hidden; resize: none; border-radius: 0.375rem; background-color: #374151; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); width: 100%; text-align: left; white-space: nowrap; font-size: 1.125rem;" placeholder="e.g. SBN: AA2e3Lg...~h:0112:1"></textarea>
-						<button id="submitStringBtn" style="background-color: #4f46e5; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s; align-self: flex-start;">OK</button>
+						<button id="submitStringBtn" style="background-color: #4f46e5; color: white; padding: 0.5rem 1.5rem; border-radius: 0.375rem; transition: background-color 0.2s; align-self: flex-start;">OK</button>
 					</div>
 				</div>
 				<div style="position: relative; margin: 1.5rem 0;">
@@ -251,7 +251,7 @@ function setupImportInterface({ importPuzzleString: importPuzzleString, setStatu
 				<div style="background-color: #1f2937; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.6); width: 100%; max-width: 500px; border: 1px solid #374151;">
 					<h2 style="font-size: 1.5rem; font-weight: bold; color: white; margin-bottom: 1.5rem; text-align: center;">Import from Photo</h2>
 					<div style="margin-bottom: 2rem;">
-						<button id="loadImageBtn" style="width: 100%; background-color: #4f46e5; color: white; padding: 0.75rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s; border: none; margin-bottom: 1rem;">Load Image</button>
+						<button id="loadImageBtn" style="width: 100%; background-color: #4f46e5; color: white; padding: 0.75rem 1rem; border-radius: 2rem; transition: background-color 0.2s; border: none; margin-bottom: 1rem;">Load Image</button>
 						<input type="file" id="photoFileInput" accept="image/*" style="display: none;" />
 						<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
 							<input type="checkbox" id="enableAnnotationsCheckbox" style="width: 1rem; height: 1rem;" />
@@ -1183,4 +1183,5 @@ function setupImportInterface({ importPuzzleString: importPuzzleString, setStatu
 	};
 	// Initialize the Uploader, which sets up all UI elements and event listeners.
 	Uploader.init();
+
 }
