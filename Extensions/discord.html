@@ -66,10 +66,7 @@
 <body class="bg-zinc-950">
     <div id="root"></div>
     <script type="text/babel">
-		const {
-			useState,
-			useEffect
-		} = React;
+		const { useState, useEffect, useRef } = React;
 		const BACKEND_URL = "https://starbattle.onrender.com";
 		const HomeIcon = () => < svg xmlns = "http://www.w3.org/2000/svg"
 		className = "h-6 w-6"
@@ -136,27 +133,6 @@
 
 		const App = () => {
 			const [currentPage, setCurrentPage] = useState('home');
-
-			useEffect(() => {
-				const urlParams = new URLSearchParams(window.location.search);
-				const page = urlParams.get('page');
-				const validPages = ['home', 'rules', 'submit-strat', 'bug-report', 'feature-request'];
-				if (page && validPages.includes(page)) {
-					setCurrentPage(page);
-				}
-				if (!sessionStorage.getItem('aPinged')) {
-                const wping = async () => {
-                    try {
-                        await fetch(`${BACKEND_URL}/ping`, {
-                            method: 'GET',
-                            signal: AbortSignal.timeout(10)
-                        });
-                        sessionStorage.setItem('aPinged', 'true');
-                    } catch (error) {}
-                };
-                wping();
-            }
-			}, []);
 
 			const renderPage = () => {
 				switch (currentPage) {
@@ -433,6 +409,52 @@
 				const [message, setMessage] = useState('');
 				const [messageType, setMessageType] = useState('');
 				const [isSubmitting, setIsSubmitting] = useState(false);
+				const formRef = useRef(null);
+				const hasInteracted = useRef(false);
+				
+				useEffect(() => {
+				const formElement = formRef.current;
+				if (!formElement) return;
+
+				const handlePaste = (event) => {
+					// Check if the event contains files
+					if (event.clipboardData && event.clipboardData.files.length > 0) {
+						const files = Array.from(event.clipboardData.files);
+						
+						const newEntries = files.map(file => ({
+							id: Date.now() + Math.random(),
+							file: file,
+							description: '',
+							title: ''
+						}));
+						
+						setImageEntries(prev => [...prev, ...newEntries]);
+					}
+				};
+
+				formElement.addEventListener('paste', handlePaste);
+
+				return () => {
+					formElement.removeEventListener('paste', handlePaste);
+				};
+			}, []);
+			
+			    const pingBackendOnInteraction = async () => {
+                    const ONE_HOUR_IN_MS = 60 * 60 * 1000;
+                    const lastPing = localStorage.getItem('lastPingTimestamp');
+                    const now = Date.now();
+
+                    if (lastPing && (now - parseInt(lastPing, 10)) < ONE_HOUR_IN_MS) {
+                        return; // It has been less than an hour, do nothing.
+                    }
+
+                    try {
+                        await fetch(`${BACKEND_URL}/ping`);
+                        localStorage.setItem('lastPingTimestamp', now.toString());
+                    } catch (error) {
+                        // Ping failed, do nothing.
+                    }
+                };
 
 				const handleImageTitleChange = (id, value) => {
 					setImageEntries(prev => prev.map(entry =>
@@ -444,15 +466,19 @@
 				};
 
 				const handleChange = (e) => {
-					const {
-						name,
-						value
-					} = e.target;
-					setFormData(prev => ({
-						...prev,
-						[name]: value
-					}));
-				};
+                    if (!hasInteracted.current) {
+                        pingBackendOnInteraction();
+                        hasInteracted.current = true;
+                    }
+                    const {
+                        name,
+                        value
+                    } = e.target;
+                    setFormData(prev => ({
+                        ...prev,
+                        [name]: value
+                    }));
+                };
 
 				const handleFileChange = (e) => {
 					const files = Array.from(e.target.files);
@@ -525,8 +551,8 @@
 					}
 				};
 
-				return ( <
-						div className = "bg-zinc-900 p-6 md:p-8 rounded-xl shadow-2xl animate-fade-in-up border border-zinc-800" >
+				return (
+						<div ref={formRef} className="bg-zinc-900 p-6 md:p-8 rounded-xl shadow-2xl animate-fade-in-up border border-zinc-800">
 						<
 						h2 className = "text-4xl font-bold text-white mb-2" > {
 							title
@@ -665,9 +691,7 @@
 											onClick = {
 												() => handleRemoveImage(entry.id)
 											}
-											className = "flex-shrink-0 bg-red-600/20 text-red-400 hover:bg-red-500 hover:text-white rounded-full h-8 w-8 flex items-center justify-center transition-colors duration-200 self-center sm:self-start" >
-											&
-											times; <
+											className = "flex-shrink-0 bg-red-600/20 text-red-400 hover:bg-red-500 hover:text-white rounded-full h-8 w-8 flex items-center justify-center transition-colors duration-200 self-center sm:self-start" >x<
 											/button> <
 											/div>
 										))
@@ -868,6 +892,5 @@
 							root.render( < App / > );
       </script>
 </body>
-
 
 </html>
