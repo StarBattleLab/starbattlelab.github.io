@@ -1,4 +1,4 @@
-# Star Battle Playground
+# [Star Battle Playground](https://github.com/StarBattleLab/starbattlelab.github.io)
 
 This repository contains a web application for playing and creating Star Battle puzzles, built entirely with client-side technologies (**HTML, CSS, and JavaScript**). The application logic, including puzzle generation and solving, runs in your browser, making it fast and responsive.
 
