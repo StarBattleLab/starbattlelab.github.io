@@ -3,7 +3,7 @@
  * Title: Star Battle API and Data Management
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.1.5
+ * @version 1.1.6
  * *-------------------------------------------------------------------------------
  * This script manages all asynchronous communication with the backend API for the
  * Star Battle puzzle application. Its responsibilities include fetching new
@@ -226,8 +226,11 @@ async function importPuzzleString(importString) {
  * @returns {Promise<void>}
  */
 async function handleImport() {
-    const importString = prompt("Paste your puzzle string (SBN or Web Task format):");
-    await importPuzzleString(importString);
+    // Finds the importer UI created by mobile_import.js and displays it.
+    const importerContainer = document.getElementById('importerContainer');
+    if (importerContainer) {
+        importerContainer.style.display = 'flex';
+    }
 }
 
 /**
@@ -324,3 +327,4 @@ function populateLoadModal() {
         modalContent.appendChild(item);
     });
 }
+
