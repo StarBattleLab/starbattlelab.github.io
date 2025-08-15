@@ -195,7 +195,7 @@ function decodePlayerAnnotations(annotationDataStr, dim) {
             const states = [Math.floor(value / 16), Math.floor((value % 16) / 4), value % 4]; // Unpack base-4 values
             for (let i = 0; i < 3; i++) {
                 const shiftedIndex = cellCursor + i - 2;
-                if (shiftedIndex < dim * dim) {
+                if (shiftedIndex >= 0 && shiftedIndex < dim * dim) {
                     const { r, c } = flatIndices[shiftedIndex];
                     grid[r][c] = sbnToGame[states[i]] || STATE_EMPTY;
                 }
@@ -349,3 +349,4 @@ function universalImport(importString) {
     console.error("Could not recognize puzzle format.");
     return null;
 }
+
