@@ -1,0 +1,393 @@
+<!-- 
+/**
+ * debugger.html
+ *
+ * @author Isaiah Tadrous
+ * @version 1.0.0
+ *
+ *
+ * @description
+ * This file, `debugger.html`, provides a visual and log-based interface for developers and interested users
+ * to step through the internal workings of the SnapGrid image-to-puzzle conversion process. It is a crucial
+ * tool for identifying why a particular image might fail to be recognized by the main application's photo importer.
+ *
+ * It loads an image and then processes it through several major stages, including:
+ * 1. Initial pre-processing (downscaling, grayscale, etc.).
+ * 2. Unwarping and perspective correction.
+ * 3. Grid line detection and analysis.
+ * 4. Region border enhancement and filtering.
+ * 5. Final grid generation and optional annotation detection (stars and crosses).
+ *
+ * This allows for a granular inspection of the image data at each step, helping to pinpoint where the detection
+ * pipeline may have failed or introduced errors. Users can submit bug reports with the output of this debugger
+ * to provide invaluable data for improving the core algorithm.
+ *
+ */
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Processor Debugger</title>
+    <style>
+		body { font-family: 'Fira Code', 'Courier New', monospace, sans-serif; line-height: 1.6; margin: 0; background-color: #121212; color: #e0e0e0; }
+		.container { max-width: 1200px; margin: 20px auto; padding: 20px; background-color: #1e1e1e; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); border: 1px solid #333; }
+		h1, h2 { color: #39ff14; border-bottom: 2px solid #444; padding-bottom: 10px; text-shadow: 0 0 5px rgba(57, 255, 20, 0.3); }
+		#controls { margin-bottom: 20px; padding: 15px; background-color: #2a2a2a; border-radius: 8px; display: flex; align-items: center; gap: 20px; border: 1px solid #444; }
+		#processBtn { background-color: #39ff14; color: #121212; font-weight: bold; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: all 0.3s; box-shadow: 0 0 8px rgba(57, 255, 20, 0.4); }
+		#processBtn:disabled { background-color: #555; color: #888; cursor: not-allowed; box-shadow: none; }
+		#processBtn:hover:not(:disabled) { background-color: #adff2f; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(57, 255, 20, 0.6); }
+		#log { border: 1px solid #333; height: 200px; overflow-y: scroll; padding: 10px; background-color: #000; border-radius: 5px; font-family: "Courier New", Courier, monospace; color: #39ff14; }
+		#log p { margin: 0 0 5px; padding: 0; font-size: 14px; }
+		#log p.error { color: #ff4d4d; }
+		#debug-stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+		.stage { border: 1px solid #444; border-radius: 8px; padding: 15px; background-color: #2a2a2a; text-align: center; }
+		.stage h3 { margin-top: 0; color: #ccc; }
+		.stage canvas { max-width: 100%; height: auto; background-color: #111; border-radius: 4px; }
+		.stage pre { text-align: left; background-color: #000; color: #f0f0f0; padding: 10px; border-radius: 4px; white-space: pre-wrap; word-break: break-all; border: 1px solid #333; }
+		.final-error { grid-column: 1 / -1; text-align: center; font-size: 1.2em; color: #ff4d4d; background-color: #4d1a1a; padding: 20px; border-radius: 8px; border: 1px solid #ff4d4d; }
+		.hidden { display: none; }
+		.cloned-grid-container { margin-top: 20px; }
+		.cloned-grid { display: grid; border: 2px solid #39ff14; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); }
+		.cloned-grid .grid-cell { aspect-ratio: 1 / 1; box-sizing: border-box; border-top: 1px solid #444; border-left: 1px solid #444; }
+		.cloned-grid .region-border-bottom { border-bottom: 2px solid #39ff14; }
+		.cloned-grid .region-border-right { border-right: 2px solid #39ff14; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Puzzle Processor Debugger</h1>
+      <div id="controls">
+        <input type="file" id="imageLoader" accept="image/*">
+        <button id="processBtn" disabled>Process Image</button>
+      </div>
+      <h2>Log</h2>
+      <div id="log"></div>
+      <div id="statusBox" class="hidden">
+        <p id="statusText"></p>
+      </div>
+      <h2>Processing Stages</h2>
+      <div id="debug-stages"></div>
+    </div>
+    <div id="originalContainer" style="display: none;">
+      <canvas id="canvasOriginal"></canvas>
+    </div>
+    <div id="processedContainer" style="display: none;">
+      <canvas id="canvasProcessed"></canvas>
+    </div>
+    <div id="finalContainer" style="display: none;">
+      <canvas id="canvasFinal"></canvas>
+    </div>
+    <div id="status" style="display: none;"></div>
+    <canvas id="outputCanvas" style="display: none;"></canvas>
+    <div id="results-info" style="display: none;"></div>
+    <div id="starbattle-grid-container" style="display: none;">
+      <div id="starbattle-grid"></div>
+    </div>
+    <script src="pica.min.js"></script>
+    <script src="opencv.js" async></script>
+    <script src="imagePreProcessor.js"></script>
+    <script src="imageNormalizer.js"></script>
+    <script src="gridDetector.js"></script>
+    <script src="speedinvert.js"></script>
+    <script src="enhanceRegionsByColor.js"></script>
+    <script src="lineDurabilityFilter.js"></script>
+    <script src="annotationDetector.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        const imageLoader = document.getElementById('imageLoader');
+        const processBtn = document.getElementById('processBtn');
+        const logDiv = document.getElementById('log');
+        const stagesDiv = document.getElementById('debug-stages');
+        let activeProcessingImage = null;
+        let activeFullResImage = null;
+        const logMessage = (message, isError = false) => {
+          const p = document.createElement('p');
+          p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+          if (isError) p.classList.add('error');
+          logDiv.appendChild(p);
+          p.scrollIntoView();
+          console.log(isError ? 'ERROR:' : 'INFO:', message);
+        };
+        const addStage = (title, data) => {
+          const stageDiv = document.createElement('div');
+          stageDiv.className = 'stage';
+          const h3 = document.createElement('h3');
+          h3.textContent = title;
+          stageDiv.appendChild(h3);
+          if (data instanceof HTMLCanvasElement || data instanceof HTMLImageElement) {
+            const canvas = document.createElement('canvas');
+            const displayWidth = 300;
+            canvas.width = displayWidth;
+            canvas.height = (data.height / data.width) * displayWidth;
+            canvas.getContext('2d').drawImage(data, 0, 0, canvas.width, canvas.height);
+            stageDiv.appendChild(canvas);
+          } else if (data && typeof data === 'object') {
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 2);
+            stageDiv.appendChild(pre);
+          } else {
+            const p = document.createElement('p');
+            p.textContent = "No visual output for this stage.";
+            stageDiv.appendChild(p);
+          }
+          stagesDiv.appendChild(stageDiv);
+          return data;
+        };
+        const showFinalError = (message = "No valid puzzle detected.") => {
+          const finalMsgDiv = document.createElement('div');
+          finalMsgDiv.className = 'final-error';
+		  finalMsgDiv.innerHTML = `${message} Please make a bug request <a href="https://starbattlelab.github.io/Extensions/discord.html?page=bug-report" target="_blank">here</a>. We are still improving the program.`;
+          stagesDiv.appendChild(finalMsgDiv);
+        };
+        const cvReady = () => new Promise(resolve => {
+          const interval = setInterval(() => {
+            if (typeof cv !== 'undefined' && cv.imread) {
+              clearInterval(interval);
+              resolve();
+            }
+          }, 100);
+        });
+        const overlayAnnotationsOnGrid = (gridElement, annotations, gridSize) => {
+          if (!gridElement || !annotations || !gridSize) {
+            logMessage("Cannot overlay annotations: Missing grid element, annotations, or grid size.", true);
+            return;
+          }
+          const cells = gridElement.querySelectorAll('.grid-cell');
+          if (cells.length !== gridSize * gridSize) {
+            logMessage("Cell count mismatch. Cannot overlay symbols.", true);
+            return;
+          }
+          const annotationMap = new Map(annotations.map(a => [`${a.row},${a.col}`, a.type]));
+          for (let i = 0; i < cells.length; i++) {
+            const r = Math.floor(i / gridSize);
+            const c = i % gridSize;
+            const cell = cells[i];
+            const annotationType = annotationMap.get(`${r},${c}`);
+            if (annotationType) {
+              const symbolSpan = document.createElement('span');
+              symbolSpan.style.position = 'absolute';
+              symbolSpan.style.display = 'flex';
+              symbolSpan.style.alignItems = 'center';
+              symbolSpan.style.justifyContent = 'center';
+              symbolSpan.style.width = '100%';
+              symbolSpan.style.height = '100%';
+              symbolSpan.style.fontSize = '24px';
+              symbolSpan.style.fontWeight = 'bold';
+              symbolSpan.style.zIndex = '10';
+              symbolSpan.textContent = annotationType === 'star' ? '★' : 'X';
+              symbolSpan.style.color = annotationType === 'star' ? '#ffc107' : '#dc3545';
+              cell.style.position = 'relative';
+              cell.appendChild(symbolSpan);
+            }
+          }
+        };
+        const runDebugWorkflow = async () => {
+          if (!activeProcessingImage) {
+            logMessage("Please load an image first.", true);
+            return;
+          }
+          processBtn.disabled = true;
+          logDiv.innerHTML = '';
+          let generatedGridElement = null;
+          logMessage("Starting debug workflow...");
+          try {
+            logMessage("Step 1: Running Initial Image Pre-processor...");
+            const {
+              finalCanvas,
+              statusMessage
+            } = await PuzzleProcessor.runFullProcess({
+              processingImage: activeProcessingImage,
+              fullResolutionImage: activeFullResImage,
+              onStatusUpdate: logMessage
+            });
+            logMessage(statusMessage || "Initial Pre-processor SUCCESS.");
+            const preprocessedItem = finalCanvas || activeProcessingImage;
+            addStage("1. Initial Pre-processed", preprocessedItem);
+            const drawableToImage = (drawable) => new Promise((resolve, reject) => {
+              if (drawable instanceof HTMLImageElement) {
+                resolve(drawable);
+              } else if (drawable instanceof HTMLCanvasElement) {
+                const image = new Image();
+                image.onload = () => resolve(image);
+                image.onerror = () => reject(new Error("Failed to convert canvas to image."));
+                image.src = drawable.toDataURL();
+              } else {
+                reject(new Error("Cannot convert item to Image: Not a Canvas or Image element."));
+              }
+            });
+            logMessage("Step 2: Running Unwarp Processor (4 passes)...");
+            let currentUnwarpInput = await drawableToImage(preprocessedItem);
+            let finalUnwarpedCanvas = null;
+            for (let i = 1; i <= 2; i++) {
+              logMessage(` -> Running Unwarp Pass ${i}/4...`);
+              const {
+                finalImageData
+              } = await ImageProcessor.processImage(currentUnwarpInput, logMessage, {
+                maxDimension: 700
+              });
+              if (!finalImageData) {
+                throw new Error(`Unwarp processor (ImageNormalizer) failed on pass ${i}.`);
+              }
+              const passCanvas = document.createElement('canvas');
+              passCanvas.width = finalImageData.width;
+              passCanvas.height = finalImageData.height;
+              passCanvas.getContext('2d').putImageData(finalImageData, 0, 0);
+              addStage(`2.${i} Unwarp Pass ${i}`, passCanvas);
+              currentUnwarpInput = passCanvas;
+              if (i === 2) {
+                finalUnwarpedCanvas = passCanvas;
+              }
+            }
+            let currentImage = finalUnwarpedCanvas;
+            logMessage("Step 3: Detecting grid...");
+            await cvReady();
+            logMessage("OpenCV is ready.");
+            const grid = await gridDetector.detectGrid(currentImage);
+            if (!grid || !grid.gridSize) throw new Error("Grid detector returned null or invalid grid.");
+            addStage("3. Grid Info", grid);
+            logMessage("Step 3.5: Checking for automatic color inversion...");
+            const invertResult = await processImageAndInvert(currentImage, grid);
+            if (!invertResult || !invertResult.success) {
+              const errorMessage = invertResult.error || "The Auto Invert (speedinvert) step failed.";
+              throw new Error(errorMessage);
+            }
+            logMessage(` -> Inversion check complete. Image was ${invertResult.inverted ? 'INVERTED' : 'NOT inverted'}.`);
+            addStage("3.5. Auto Invert Check", invertResult.canvas);
+            currentImage = invertResult.canvas;
+            const ctx = currentImage.getContext('2d');
+            const cornerPixel = ctx.getImageData(0, 0, 1, 1).data;
+            const isWhiteBackground = cornerPixel[0] > 200 && cornerPixel[1] > 200 && cornerPixel[2] > 200;
+            let filterPassed = false;
+            const statusEl = document.getElementById('status');
+            const attemptWithEnhancementFirst = async () => {
+              logMessage("Strategy: Try with color enhancement first (for dark/colored backgrounds).");
+              logMessage("Step 4a: Enhancing regions by color...");
+              const enhancedCanvas = document.createElement('canvas');
+              const enhanceResult = await enhanceRegions(currentImage, enhancedCanvas, grid);
+              if (!enhanceResult || !enhanceResult.success) throw new Error(enhanceResult.error || "Failed to enhance regions.");
+              addStage("4a. Enhanced Regions (Attempt 1)", enhancedCanvas);
+              logMessage("Step 5a: Running Filter on Enhanced Image...");
+              await window.runDurabilityFilterWithGrid(enhancedCanvas, grid);
+              filterPassed = !(statusEl && statusEl.textContent.includes('Failed'));
+              if (filterPassed) {
+                logMessage("SUCCESS on first attempt (Enhanced Image).");
+                return true;
+              }
+              logMessage("Attempt 1 FAILED. Retrying with original image...", true);
+              addStage("4b. Fallback Image (Original)", currentImage);
+              logMessage("Step 5b: Running Filter on Original Image...");
+              await window.runDurabilityFilterWithGrid(currentImage, grid);
+              filterPassed = !(statusEl && statusEl.textContent.includes('Failed'));
+              if (filterPassed) logMessage("SUCCESS on second attempt (Original Image).");
+              return filterPassed;
+            };
+            const attemptWithoutEnhancementFirst = async () => {
+              logMessage("Strategy: Try with original image first (for white backgrounds).");
+              addStage("4a. Original Image (Attempt 1)", currentImage);
+              logMessage("Step 5a: Running Filter on Original Image...");
+              await window.runDurabilityFilterWithGrid(currentImage, grid);
+              filterPassed = !(statusEl && statusEl.textContent.includes('Failed'));
+              if (filterPassed) {
+                logMessage("SUCCESS on first attempt (Original Image).");
+                return true;
+              }
+              logMessage("Attempt 1 FAILED. Retrying with color enhancement...", true);
+              logMessage("Step 4b: Enhancing regions for fallback...");
+              const enhancedCanvas = document.createElement('canvas');
+              const enhanceResult = await enhanceRegions(currentImage, enhancedCanvas, grid);
+              if (!enhanceResult || !enhanceResult.success) throw new Error(enhanceResult.error || "Failed to enhance regions for retry.");
+              addStage("4b. Fallback Image (Enhanced)", enhancedCanvas);
+              logMessage("Step 5b: Running Filter on Enhanced Image...");
+              await window.runDurabilityFilterWithGrid(enhancedCanvas, grid);
+              filterPassed = !(statusEl && statusEl.textContent.includes('Failed'));
+              if (filterPassed) logMessage("SUCCESS on second attempt (Enhanced Image).");
+              return filterPassed;
+            };
+            if (isWhiteBackground) {
+              filterPassed = await attemptWithoutEnhancementFirst();
+            } else {
+              filterPassed = await attemptWithEnhancementFirst();
+            }
+            if (!filterPassed) {
+              throw new Error(`Line Durability Filter failed on both attempts. Final error: ${statusEl.textContent}`);
+            }
+            const finalImageCanvas = document.getElementById('outputCanvas');
+            if (finalImageCanvas && finalImageCanvas.width > 0) {
+              addStage("5. Final Processed Image", finalImageCanvas);
+            }
+            const finalGridContainer = document.getElementById('starbattle-grid-container');
+            if (finalGridContainer && finalGridContainer.style.display !== 'none') {
+              const gridClone = finalGridContainer.cloneNode(true);
+              gridClone.style.display = 'block';
+              gridClone.id = '';
+              const gridEl = gridClone.querySelector('#starbattle-grid');
+              if (gridEl) {
+                gridEl.id = '';
+                gridEl.className = 'cloned-grid';
+                generatedGridElement = gridEl; // Capture the element!
+              }
+              const stageDiv = document.createElement('div');
+              stageDiv.className = 'stage';
+              const h3 = document.createElement('h3');
+              h3.textContent = "6. Generated Grid";
+              stageDiv.appendChild(h3);
+              stageDiv.appendChild(gridClone);
+              stagesDiv.appendChild(stageDiv);
+            }
+            logMessage("Step 7: Detecting annotations (stars, x)...");
+            const hqUnwarpInput = await drawableToImage(preprocessedItem);
+            const {
+              finalImageData: hqUnwarpedImageData
+            } = await ImageProcessor.processImage(hqUnwarpInput, logMessage, {
+              maxDimension: 700
+            });
+            if (!hqUnwarpedImageData) {
+              throw new Error("Failed to generate the high-quality image needed for annotation detection.");
+            }
+            logMessage(" -> Running annotation detector on high-quality image...");
+            const annotations = await annotationDetector.detect(hqUnwarpedImageData, grid);
+            logMessage(`Annotation Detector SUCCESS. Found ${annotations.length} annotations.`);
+            logMessage(` -> Locations: ${JSON.stringify(annotations)}`);
+            if (generatedGridElement) {
+              logMessage(" -> Overlaying symbols on generated grid.");
+              overlayAnnotationsOnGrid(generatedGridElement, annotations, grid.gridSize);
+            } else {
+              logMessage(" -> Could not find the generated grid to overlay symbols.", true);
+            }
+            logMessage("Workflow Complete!", false);
+          } catch (error) {
+            logMessage(`Workflow failed: ${error.message}`, true);
+            showFinalError(error.message);
+          } finally {
+            processBtn.disabled = false;
+          }
+        };
+        imageLoader.addEventListener('change', async (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          logDiv.innerHTML = '';
+          stagesDiv.innerHTML = '';
+          processBtn.disabled = true;
+          logMessage("Loading image...");
+          try {
+            const {
+              fullResolutionImage,
+              processingImage
+            } = await PuzzleProcessor.loadImageFromFile(file, 1000, logMessage);
+            activeProcessingImage = processingImage;
+            activeFullResImage = fullResolutionImage;
+            logMessage("Image loaded. Ready to process.");
+            addStage("0. Loaded Image (Downscaled)", activeProcessingImage);
+            processBtn.disabled = false;
+          } catch (err) {
+            logMessage(err.message, true);
+            processBtn.disabled = true;
+          }
+        });
+        processBtn.addEventListener('click', runDebugWorkflow);
+      });
+    </script>
+  </body>
+</html>
