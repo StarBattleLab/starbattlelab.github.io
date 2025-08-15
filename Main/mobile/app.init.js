@@ -3,7 +3,7 @@
  * Title: Star Battle Application Initializer and Event Wiring
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.0
+ * @version 1.0.1
  * *-------------------------------------------------------------------------------
  * This script serves as the main entry point for the Star Battle web application.
  * It waits for the DOM to be fully loaded and then executes the primary `init`
@@ -65,6 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Populate the puzzle size selector dropdown on startup
         populateSizeSelector();
+
+        // Initialize the import UI when the app loads
+        setupImportInterface({ importPuzzleString, setStatus });
 
         // Wire up all the primary action buttons to their respective functions
         addResponsiveListener(backToHomeBtn, showHomeScreen);
@@ -294,4 +297,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Run the main initialization function once the DOM is ready
     init();
+
 });
