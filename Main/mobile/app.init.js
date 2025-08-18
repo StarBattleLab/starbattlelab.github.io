@@ -3,7 +3,7 @@
  * Title: Star Battle Application Initializer and Event Wiring
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.1
+ * @version 1.0.2
  * *-------------------------------------------------------------------------------
  * This script serves as the main entry point for the Star Battle web application.
  * It waits for the DOM to be fully loaded and then executes the primary `init`
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addResponsiveListener(backToHomeBtn, showHomeScreen);
         addResponsiveListener(newPuzzleBtn, fetchNewPuzzle);
         addResponsiveListener(savePuzzleBtn, handleSave);
-        addResponsiveListener(checkSolutionBtn, checkSolution);
+        addResponsiveListener(checkSolutionBtn, () => checkSolution(true));
         addResponsiveListener(importBtn, handleImport);
         addResponsiveListener(exportBtn, handleExport);
         addResponsiveListener(undoBtn, undo);
