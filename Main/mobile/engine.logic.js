@@ -3,7 +3,7 @@
  * Title: Star Battle Game Logic and History Management
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.0
+ * @version 1.0.1
  * *-------------------------------------------------------------------------------
  * This script contains the core game logic and state manipulation functions for
  * the Star Battle puzzle application. It is responsible for handling player
@@ -125,6 +125,7 @@ function placeStarAndAutoX(r, c) {
         finalChanges.forEach(c => applyMarkChange(c.r, c.c, state.playerGrid[c.r][c.c], c.to));
         pushHistory({ type: 'compoundMark', changes: finalChanges });
         updateErrorHighlightingUI();
+		performAutoCheck({ r, c });
     }
 }
 
@@ -181,6 +182,34 @@ function removeStarAndUndoAutoX(r, c) {
         }
     }
     updateErrorHighlightingUI();
+}
+
+/**
+ * Checks if the total number of stars matches the required amount for the puzzle.
+ * If it does, triggers a full solution verification.
+ * @param {object} lastStarCoords - The {r, c} coordinates of the last star placed.
+ * @returns {void}
+ */
+function performAutoCheck(lastStarCoords) {
+    // ... (the star counting logic remains the same)
+    const { gridDim, starsPerRegion, playerGrid } = state;
+    if (gridDim === 0) return;
+
+    const expectedTotalStars = gridDim * starsPerRegion;
+    let actualTotalStars = 0;
+
+    for (let r = 0; r < gridDim; r++) {
+        for (let c = 0; c < gridDim; c++) {
+            if (playerGrid[r][c] === 1) {
+                actualTotalStars++;
+            }
+        }
+    }
+
+    // If the count is correct, trigger the full check, passing the coords along.
+    if (actualTotalStars === expectedTotalStars) {
+        checkSolution(false, lastStarCoords);
+    }
 }
 
 // --- COLOR & BORDER MANAGEMENT ---
