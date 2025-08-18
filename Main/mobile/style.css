@@ -16,7 +16,7 @@
    - Black & white theme and error state visuals
 
    Author: Isaiah Tadrous
-   Last Updated: [2025-07-09]
+   Last Updated: [2025-08-18]
 ========================================================================== */
 
 
@@ -339,4 +339,15 @@ button:disabled, .toolbar-btn:disabled {
 .grid-container.solution-mode {
     border-color: #f59e0b !important;
     box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+}
+
+.correct-star-pulse .star-svg {
+  animation: pulse-green 1.2s ease-in-out;
+  color: #02ed60;
+}
+@keyframes pulse-green {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
 }
