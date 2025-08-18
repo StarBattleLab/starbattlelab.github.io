@@ -343,7 +343,7 @@ button:disabled, .toolbar-btn:disabled {
 
 .correct-star-pulse .star-svg {
   animation: pulse-green 1.2s ease-in-out;
-  color: #02ed60;
+  color: #f4f7f5;
 }
 @keyframes pulse-green {
   0% { transform: scale(1); }
@@ -351,3 +351,4 @@ button:disabled, .toolbar-btn:disabled {
   60% { transform: scale(0.9); }
   100% { transform: scale(1); }
 }
+
