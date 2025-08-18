@@ -3,7 +3,7 @@
  * Title: Star Battle Rendering and UI Drawing Engine
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.0
+ * @version 1.0.1
  * *-------------------------------------------------------------------------------
  * This script is responsible for all visual rendering and drawing for the Star
  * Battle puzzle application. It handles the initial generation of the puzzle
@@ -338,4 +338,190 @@ function renderColorPicker() {
     document.querySelectorAll('#color-picker-wrapper .color-slot').forEach(slot => {
         slot.classList.toggle('selected', slot.dataset.color === state.currentColor);
     });
+}
+
+/**
+ * A helper class to track groups of connected stars using a Union-Find data structure.
+ * This helps identify any "islands" of stars that need to be connected.
+ */
+class UnionFind {
+    constructor(n) {
+        this.parent = Array.from({ length: n }, (_, i) => i);
+        this.numComponents = n;
+    }
+
+    find(i) {
+        if (this.parent[i] === i) return i;
+        return this.parent[i] = this.find(this.parent[i]); // Path compression
+    }
+
+    union(i, j) {
+        const rootI = this.find(i);
+        const rootJ = this.find(j);
+        if (rootI !== rootJ) {
+            this.parent[rootI] = rootJ;
+            this.numComponents--;
+            return true;
+        }
+        return false;
+    }
+}
+
+/**
+ * Triggers a visual animation on all stars to indicate a correct solution.
+ * Disables grid interaction during the animation to prevent edits.
+ * @returns {void}
+ */
+function triggerSuccessAnimation(lastStarCoords = null) {
+    gridContainer.style.pointerEvents = 'none';
+    const PULSE_ANIMATION_DURATION = 1200;
+    const LINE_ANIMATION_PER_SEGMENT = 200;
+
+    const { gridDim, playerGrid } = state;
+    if (gridDim === 0) return;
+
+    const stars = [];
+    const cellWidth = drawCanvas.width / gridDim;
+    const cellHeight = drawCanvas.height / gridDim;
+
+    for (let r = 0; r < gridDim; r++) {
+        for (let c = 0; c < gridDim; c++) {
+            if (playerGrid[r][c] === 1) {
+                stars.push({
+                    id: stars.length,
+                    r,
+                    c,
+                    x: c * cellWidth + cellWidth / 2,
+                    y: r * cellHeight + cellHeight / 2,
+                });
+            }
+        }
+    }
+    if (stars.length < 2) {
+        if (stars.length === 1) initiatePulseAndCleanup();
+        else gridContainer.style.pointerEvents = 'auto';
+        return;
+    }
+
+    const connections = new Set();
+    stars.forEach((star1) => {
+        const neighbors = stars
+            .filter(star2 => star1.id !== star2.id)
+            .map(star2 => ({
+                ...star2,
+                distance: Math.hypot(star1.x - star2.x, star1.y - star2.y)
+            }))
+            .sort((a, b) => a.distance - b.distance);
+
+        for (let i = 0; i < 3 && i < neighbors.length; i++) {
+            const key = [star1.id, neighbors[i].id].sort((a, b) => a - b).join('-');
+            connections.add(key);
+        }
+    });
+
+    const uf = new UnionFind(stars.length);
+    connections.forEach(key => uf.union(...key.split('-').map(Number)));
+
+    if (uf.numComponents > 1) {
+        const componentGroups = {};
+        stars.forEach(star => {
+            const root = uf.find(star.id);
+            if (!componentGroups[root]) componentGroups[root] = [];
+            componentGroups[root].push(star);
+        });
+        const components = Object.values(componentGroups);
+        const mainComponent = components.shift();
+
+        components.forEach(componentToConnect => {
+            let bestBridge = { distance: Infinity };
+            mainComponent.forEach(star1 => {
+                componentToConnect.forEach(star2 => {
+                    const distance = Math.hypot(star1.x - star2.x, star1.y - star2.y);
+                    if (distance < bestBridge.distance) {
+                        bestBridge = { star1, star2, distance };
+                    }
+                });
+            });
+            const key = [bestBridge.star1.id, bestBridge.star2.id].sort((a, b) => a - b).join('-');
+            connections.add(key);
+        });
+    }
+    
+    const graph = new Map(stars.map(s => [s.id, []]));
+    connections.forEach(key => {
+        const [id1, id2] = key.split('-').map(Number);
+        graph.get(id1).push(id2);
+        graph.get(id2).push(id1);
+    });
+
+    const activatedStars = new Set(), linesBeingDrawn = [], drawnLines = new Set();
+    function activateStar(starId, activationTime) {
+        if (activatedStars.has(starId)) return;
+        activatedStars.add(starId);
+        graph.get(starId).forEach(neighborId => {
+            const key = [starId, neighborId].sort((a, b) => a - b).join('-');
+            if (!drawnLines.has(key)) {
+                linesBeingDrawn.push({
+                    start: stars[starId],
+                    end: stars[neighborId],
+                    startTime: activationTime,
+                });
+                drawnLines.add(key);
+            }
+        });
+    }
+    
+    function animateBranching(timestamp) {
+        redrawAllOverlays();
+        drawCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        drawCtx.lineWidth = 2.5;
+        drawCtx.lineCap = 'round';
+
+        const newlyCompletedStars = [];
+        for (let i = linesBeingDrawn.length - 1; i >= 0; i--) {
+            const line = linesBeingDrawn[i];
+            const progress = Math.min((timestamp - line.startTime) / LINE_ANIMATION_PER_SEGMENT, 1);
+            
+            const currentX = line.start.x + (line.end.x - line.start.x) * progress;
+            const currentY = line.start.y + (line.end.y - line.start.y) * progress;
+            drawCtx.beginPath();
+            drawCtx.moveTo(line.start.x, line.start.y);
+            drawCtx.lineTo(currentX, currentY);
+            drawCtx.stroke();
+
+            if (progress >= 1) {
+                newlyCompletedStars.push(linesBeingDrawn.splice(i, 1)[0].end);
+            }
+        }
+
+        newlyCompletedStars.forEach(star => activateStar(star.id, timestamp));
+
+        if (linesBeingDrawn.length === 0 && newlyCompletedStars.length === 0) {
+            initiatePulseAndCleanup();
+        } else {
+            requestAnimationFrame(animateBranching);
+        }
+    }
+    
+    function initiatePulseAndCleanup() {
+        gridContainer.querySelectorAll('.grid-cell .star-svg').forEach(el => {
+            el.parentElement.classList.add('correct-star-pulse');
+            el.parentElement.addEventListener('animationend', () => el.parentElement.classList.remove('correct-star-pulse'), { once: true });
+        });
+        setTimeout(() => {
+            redrawAllOverlays();
+            gridContainer.style.pointerEvents = 'auto';
+        }, PULSE_ANIMATION_DURATION);
+    }
+
+    let startStar;
+    if (lastStarCoords) {
+        startStar = stars.find(s => s.r === lastStarCoords.r && s.c === lastStarCoords.c);
+    }
+    if (!startStar) {
+        startStar = stars[Math.floor(Math.random() * stars.length)];
+    }
+
+    activateStar(startStar.id, performance.now());
+    requestAnimationFrame(animateBranching);
 }
