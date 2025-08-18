@@ -3,7 +3,7 @@
  * Title: Star Battle API and Data Management
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.1.6
+ * @version 1.1.7
  * *-------------------------------------------------------------------------------
  * This script manages all asynchronous communication with the backend API for the
  * Star Battle puzzle application. Its responsibilities include fetching new
@@ -116,57 +116,101 @@ async function findSolution() {
 }
 
 /**
- * Sends the current player's grid to the backend API to check if it's a correct solution.
- * Updates the status message based on the API's validation response.
+ * Verifies the player's grid against Star Battle rules without calling the solver.
+ * Checks for correct star counts and adjacency rules.
  * @async
+ * @param {boolean} [isManualCheck=false] - If true, displays error messages on failure.
  * @returns {Promise<void>} A promise that resolves when the check is complete.
  */
-async function checkSolution() {
-    setLoading(true);
-    setStatus("Verifying solution...", null, 0);
-
-    // Use a timeout to allow the UI to update before the solver runs
-    await new Promise(resolve => setTimeout(resolve, 50));
+async function checkSolution(isManualCheck = false, lastStarCoords = null) {
+    // Only show the "Verifying..." status and loading spinner for manual checks
+    if (isManualCheck) {
+        setLoading(true);
+        setStatus("Verifying solution...", null, 0);
+        await new Promise(resolve => setTimeout(resolve, 50));
+    }
 
     try {
-        let canonicalSolution = state.solution;
+        const { gridDim, starsPerRegion, playerGrid, regionGrid } = state;
+        
+        if (gridDim === 0) {
+            if (isManualCheck) setStatus("No puzzle loaded to check.", false);
+            return;
+        }
 
-        // 1. Run the solver if the solution hasn't been found yet.
-        if (!canonicalSolution) {
-            const solver = new UltimateStarBattleSolver(state.regionGrid, state.starsPerRegion);
-            const result = solver.solve();
-            if (result.solutions && result.solutions.length > 0) {
-                canonicalSolution = result.solutions[0];
-                state.solution = canonicalSolution; // Cache the solution for future checks
-                updateSolutionButtonUI();
-            } else {
-                setStatus("Solver could not find a solution to check against.", false);
-                setLoading(false);
-                return;
+        // ... (The entire middle section of the function for checking the puzzle remains unchanged)
+        const stars = [];
+        const rowCounts = Array(gridDim).fill(0);
+        const colCounts = Array(gridDim).fill(0);
+        const regionStars = {};
+        const regionIds = new Set(regionGrid.flat());
+        regionIds.forEach(id => regionStars[id] = []);
+
+        for (let r = 0; r < gridDim; r++) {
+            for (let c = 0; c < gridDim; c++) {
+                if (playerGrid[r][c] === 1) {
+                    stars.push({ r, c });
+                    rowCounts[r]++;
+                    colCounts[c]++;
+                    regionStars[regionGrid[r][c]].push({ r, c });
+                }
             }
         }
         
-        // 2. Prepare the player's grid for comparison.
-        // The player grid contains 0s, 1s (stars), and 2s (marks).
-        // We only want to compare the stars (1s) against the solution.
-        const playerStarsGrid = state.playerGrid.map(row => 
-            row.map(cell => (cell === 1 ? 1 : 0))
-        );
+        let isCorrect = true;
+        let errorMessage = "Incorrect. Keep trying!";
 
-        // 3. Compare the player's stars against the canonical solution.
-        const isIdentical = JSON.stringify(playerStarsGrid) === JSON.stringify(canonicalSolution);
+        for (const star of stars) {
+            let adjacentFound = false;
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = star.r + dr;
+                    const nc = star.c + dc;
+                    if (nr >= 0 && nr < gridDim && nc >= 0 && nc < gridDim && playerGrid[nr][nc] === 1) {
+                        adjacentFound = true;
+                        break;
+                    }
+                }
+                if (adjacentFound) break;
+            }
+            if (adjacentFound) {
+                isCorrect = false;
+                //errorMessage = "Incorrect. Some stars are touching.";
+                break;
+            }
+        }
 
-        if (isIdentical) {
+        if (isCorrect) {
+            const countsAreValid = 
+                rowCounts.every(count => count === starsPerRegion) &&
+                colCounts.every(count => count === starsPerRegion) &&
+                Object.values(regionStars).every(region => region.length === starsPerRegion);
+            
+            if (!countsAreValid) {
+                isCorrect = false;
+                //errorMessage = "Incorrect. Check star counts in rows, columns, or regions.";
+            }
+        }
+        // ... (End of the unchanged checking logic)
+
+        // Display result
+        if (isCorrect && stars.length === gridDim * starsPerRegion) {
             setStatus("Correct!", true);
-        } else {
-            setStatus("Incorrect. Keep trying!", false);
+            triggerSuccessAnimation(lastStarCoords);
+        } else if (isManualCheck) { // <<< THIS IS THE KEY CHANGE
+            // Only show error messages if the check was manually triggered
+            if (stars.length !== gridDim * starsPerRegion) {
+                 //errorMessage = `Incorrect. You need ${gridDim * starsPerRegion} stars total.`;
+            }
+            setStatus(errorMessage, false);
         }
 
     } catch (error) {
-        console.error("Error checking solution with solver:", error);
-        setStatus("An error occurred during verification.", false);
+        console.error("Error checking solution:", error);
+        if (isManualCheck) setStatus("An error occurred during verification.", false);
     } finally {
-        setLoading(false);
+        if (isManualCheck) setLoading(false);
     }
 }
 
