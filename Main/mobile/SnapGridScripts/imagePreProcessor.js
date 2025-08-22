@@ -2,7 +2,7 @@
  * imagePreProcessor.js
  * 
  * Author: Isaiah Tadrous
- * Version: 1.0.0
+ * Version: 1.0.1
  * 
  * Description:
  * This library contains pure functions for comprehensive image processing and puzzle recognition.
@@ -584,6 +584,39 @@ function _finalFloodFill(imageData) {
             const redHeight = redMaxY - redMinY;
             const redAspectRatio = redWidth / redHeight;
             const squarenessThreshold = 1.25; // Allow 25% deviation from perfect square
+			
+
+			// Apply additional cropping for tall images with a high likelihood of being screenshots.
+			// This helps bypass cases where bars or ads interfere with grid detection.
+            const isElongated = (processHeight / processWidth) > 1.5;
+            const isSquareLike = redAspectRatio <= squarenessThreshold && redAspectRatio >= (1 / squarenessThreshold);
+
+            if (isElongated && isSquareLike) {
+                const border = redWidth * 0.15; // Defines a 15% border around the square
+
+                // Calculate the new crop box with the border, ensuring it stays within image bounds.
+                const sx = Math.max(0, redMinX - border);
+                const sy = Math.max(0, redMinY - border);
+                const sWidth = Math.min(processWidth, redMaxX + border) - sx;
+                const sHeight = Math.min(processHeight, redMaxY + border) - sy;
+
+                // Scale the crop coordinates from the processing image to the full-resolution image.
+                const scaleRatio = fullResImage.width / processWidth;
+                const final_sx = sx * scaleRatio;
+                const final_sy = sy * scaleRatio;
+                const final_sWidth = sWidth * scaleRatio;
+                const final_sHeight = sHeight * scaleRatio;
+
+                // Create the final canvas and draw the cropped high-resolution image onto it.
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = final_sWidth;
+                finalCanvas.height = final_sHeight;
+                const finalCtx = finalCanvas.getContext('2d');
+                finalCtx.drawImage(fullResImage, final_sx, final_sy, final_sWidth, final_sHeight, 0, 0, final_sWidth, final_sHeight);
+
+                // Return the result, bypassing the function's original cropping logic.
+                return resolve({ finalCanvas, statusMessage: "Optimized crop for portrait mode applied." });
+            }
 
             if (redAspectRatio > squarenessThreshold || redAspectRatio < 1 / squarenessThreshold) {
                 return reject(new Error("Main shape is not square-like."));
