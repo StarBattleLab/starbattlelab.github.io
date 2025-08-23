@@ -3,7 +3,7 @@
  * Title: Star Battle Game Logic and History Management
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.1
+ * @version 1.0.2
  * *-------------------------------------------------------------------------------
  * This script contains the core game logic and state manipulation functions for
  * the Star Battle puzzle application. It is responsible for handling player
@@ -441,4 +441,57 @@ function clearPuzzleState() {
     renderAllMarks();
     updateErrorHighlightingUI();
     updateUndoRedoButtons();
+}
+
+/**
+ * Saves the current user settings to local storage.
+ * @returns {void}
+ */
+function saveSettings() {
+    try {
+        const settingsToSave = {
+            isBwMode: state.isBwMode,
+            highlightErrors: state.highlightErrors,
+            autoXAroundStars: state.autoXAroundStars,
+            autoXOnMaxLines: state.autoXOnMaxLines,
+            autoXOnMaxRegions: state.autoXOnMaxRegions,
+            markIsX: state.markIsX,
+
+        };
+        localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(settingsToSave));
+    } catch (error) {
+        console.error("Could not save settings to local storage:", error);
+    }
+}
+
+/**
+ * Loads user settings from local storage and applies them to the application state and UI.
+ * This should be called once when the application initializes.
+ * @returns {void}
+ */
+function loadSettings() {
+    try {
+        const savedSettings = localStorage.getItem(APP_SETTINGS_KEY);
+        if (savedSettings) {
+            const parsedSettings = JSON.parse(savedSettings);
+
+            // Apply settings to the global state object
+            Object.assign(state, parsedSettings);
+
+            // --- IMPORTANT: Update the UI elements to reflect the loaded settings ---
+
+            // Update toggles/checkboxes
+            bwModeToggle.checked = state.isBwMode;
+            highlightErrorsToggle.checked = state.highlightErrors;
+            autoXAroundToggle.checked = state.autoXAroundStars;
+            autoXMaxLinesToggle.checked = state.autoXOnMaxLines;
+            autoXMaxRegionsToggle.checked = state.autoXOnMaxRegions;
+
+            // Update other UI elements
+            toggleMarkBtn.textContent = state.markIsX ? "Dots" : "Xs";
+
+        }
+    } catch (error) {
+        console.error("Could not load settings from local storage:", error);
+    }
 }
