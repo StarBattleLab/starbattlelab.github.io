@@ -3,7 +3,7 @@
  * Title: Star Battle Application Initializer and Event Wiring
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.2
+ * @version 1.0.3
  * *-------------------------------------------------------------------------------
  * This script serves as the main entry point for the Star Battle web application.
  * It waits for the DOM to be fully loaded and then executes the primary `init`
@@ -62,6 +62,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- MAIN UI EVENT WIRING ---
+		
+		loadSettings();
 
         // Populate the puzzle size selector dropdown on startup
         populateSizeSelector();
@@ -110,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addResponsiveListener(toggleMarkBtn, () => {
             state.markIsX = !state.markIsX;
             toggleMarkBtn.textContent = state.markIsX ? "Dots" : "Xs";
+			saveSettings();
             renderAllMarks(); // Re-render marks to reflect the change
             updateErrorHighlightingUI();
         });
@@ -176,11 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- SETTINGS TOGGLE LISTENERS ---
 
-        bwModeToggle.addEventListener('change', (e) => { state.isBwMode = e.target.checked; renderGrid(); });
-        highlightErrorsToggle.addEventListener('change', (e) => { state.highlightErrors = e.target.checked; updateErrorHighlightingUI(); });
-        autoXAroundToggle.addEventListener('change', (e) => { state.autoXAroundStars = e.target.checked; });
-        autoXMaxLinesToggle.addEventListener('change', (e) => { state.autoXOnMaxLines = e.target.checked; });
-        autoXMaxRegionsToggle.addEventListener('change', (e) => { state.autoXOnMaxRegions = e.target.checked; });
+        bwModeToggle.addEventListener('change', (e) => { state.isBwMode = e.target.checked; saveSettings(); renderGrid(); });
+        highlightErrorsToggle.addEventListener('change', (e) => { state.highlightErrors = e.target.checked; saveSettings(); updateErrorHighlightingUI(); });
+        autoXAroundToggle.addEventListener('change', (e) => { state.autoXAroundStars = e.target.checked; saveSettings();});
+        autoXMaxLinesToggle.addEventListener('change', (e) => { state.autoXOnMaxLines = e.target.checked; saveSettings();});
+        autoXMaxRegionsToggle.addEventListener('change', (e) => { state.autoXOnMaxRegions = e.target.checked; saveSettings();});
 
         // --- LOAD/SAVE MODAL EVENT LISTENERS ---
 
