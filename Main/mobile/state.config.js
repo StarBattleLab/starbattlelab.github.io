@@ -3,7 +3,7 @@
  * Title: Star Battle Puzzle Game State and Configuration
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.3
+ * @version 1.0.4
  * *-------------------------------------------------------------------------------
  * This script initializes and manages the entire state for a Star Battle puzzle
  * web application. It defines the central `state` object, which holds all dynamic
@@ -95,6 +95,10 @@ const state = {
  * @description Key used for saving and retrieving game progress from the browser's Local Storage.
  */
 const LOCAL_STORAGE_KEY = 'starBattleSaves';
+/**
+ * @description Key used for saving and retrieving app settings from the browser's Local Storage.
+ */
+const APP_SETTINGS_KEY = 'starBattleSettings';
 
 // --- SVG ICONS ---
 
