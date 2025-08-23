@@ -2,7 +2,7 @@
  * lineDurabilityFilter.js
  *
  * Author: Isaiah Tadrous
- * Version: 1.0.0
+ * Version: 1.0.1
  *
  * This module detects and filters line configurations based on line durability.
  * It iteratively filters away weaker lines until only the strongest remain,
@@ -202,6 +202,11 @@ async function processFullWorkflow(originalImage, sourceImageData, grid = null) 
     tempCanvas.width = originalImage.width;
     tempCanvas.height = originalImage.height;
     tempCtx.putImageData(cleanSourceImageData, 0, 0);
+
+    //Adds a border to the grid outline, as this should always be durable.
+    tempCtx.strokeStyle = '#000000';
+    tempCtx.lineWidth = 4;
+    tempCtx.strokeRect(x, y, cropWidth, cropHeight);
     const croppedImageData = tempCtx.getImageData(x, y, cropWidth, cropHeight);
 
     const canvas = document.getElementById('outputCanvas');
