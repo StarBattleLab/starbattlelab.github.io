@@ -3,7 +3,7 @@
  * Title: Star Battle API and Data Management
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.1.7
+ * @version 1.1.8
  * *-------------------------------------------------------------------------------
  * This script manages all asynchronous communication with the backend API for the
  * Star Battle puzzle application. Its responsibilities include fetching new
@@ -21,7 +21,7 @@
 // --- CORE API COMMUNICATION ---
 
 /**
- * Fetches a new puzzle from the local puzzles.json file.
+ * Fetches a new puzzle from the local puzzles dir.
  * On success, it clears the current game state, updates the state with the new
  * puzzle data, and renders the new grid.
  * @async
@@ -30,12 +30,32 @@
 async function fetchNewPuzzle() {
     setLoading(true);
     const sizeId = sizeSelect.value;
+    const puzzleDef = state.puzzleDefs[sizeId]; // Get the full puzzle definition
+
+    // Check if the definition and filename are valid
+    if (!puzzleDef || !puzzleDef.file) {
+        console.error("Selected puzzle definition is invalid or missing a filename.");
+        setStatus("Could not load puzzle definition.", false);
+        setLoading(false);
+        return;
+    }
+
+    // Construct the path to the correct .txt file
+    const puzzlePath = PUZZLES_DIRECTORY_PATH + puzzleDef.file;
+
     try {
-        const response = await fetch(PUZZLES_JSON_PATH);
-        if (!response.ok) throw new Error(`Failed to load ${PUZZLES_JSON_PATH}`);
-        const allPuzzles = await response.json();
-        const puzzlesForSize = allPuzzles[sizeId];
-        if (!puzzlesForSize || puzzlesForSize.length === 0) throw new Error(`No puzzles for size_id ${sizeId}`);
+        const response = await fetch(puzzlePath);
+        if (!response.ok) throw new Error(`Failed to load ${puzzlePath}`);
+        
+        // Fetch the file content as plain text
+        const textContent = await response.text();
+        
+        // Split the text into an array of SBN strings and filter out empty lines
+        const puzzlesForSize = textContent.split('\n').filter(line => line.trim() !== '');
+
+        if (!puzzlesForSize || puzzlesForSize.length === 0) {
+            throw new Error(`No puzzles found in file ${puzzleDef.file}`);
+        }
         
         const randomSbn = puzzlesForSize[Math.floor(Math.random() * puzzlesForSize.length)];
         const puzzleData = decodeSbn(randomSbn);
@@ -58,7 +78,7 @@ async function fetchNewPuzzle() {
         // Reset and render the game board
         clearPuzzleState();
         renderGrid();
-        showScreen('game');
+        showScreen('game'); // Keep mobile-specific UI calls
     } catch (error) {
         console.error("Error fetching new puzzle:", error);
         setStatus("Failed to load puzzle.", false);
@@ -371,4 +391,5 @@ function populateLoadModal() {
         modalContent.appendChild(item);
     });
 }
+
 
