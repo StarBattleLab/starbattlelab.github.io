@@ -5,7 +5,7 @@
  *
  * @author Joseph Bryant
  * @refactored by Isaiah Tadrous
- * @version 1.4.4
+ * @version 1.4.5
  *
  * -------------------------------------------------------------------------------
  *
@@ -87,21 +87,48 @@ const state = {
     autoXOnMaxRegions: false, // Setting for automatically placing 'X' marks in full regions.
     bufferCanvas: document.createElement('canvas'), // Off-screen canvas for preserving free-form drawings.
     bufferCtx: null,          // 2D rendering context for the buffer canvas.
-    puzzleDefs: [ // Matches backend `constants.py` for the dropdown
-        { text: "5x5 (1-star, Easy)", dim: 5, stars: 1 },
-        { text: "6x6 (1-star, Easy)", dim: 6, stars: 1 },
-        { text: "6x6 (1-star, Medium)", dim: 6, stars: 1 },
-        { text: "8x8 (1-star, Medium)", dim: 8, stars: 1 },
-        { text: "8x8 (1-star, Hard)", dim: 8, stars: 1 },
-		{ text: "10x10 (2-star, Easy)", dim: 10, stars: 2 },
-        { text: "10x10 (2-star, Medium)", dim: 10, stars: 2 },
-        { text: "10x10 (2-star, Hard)", dim: 10, stars: 2 },
-        { text: "14x14 (3-star, Medium)", dim: 14, stars: 3 },
-        { text: "14x14 (3-star, Hard)", dim: 14, stars: 3 },
-        { text: "17x17 (4-star, Hard)", dim: 17, stars: 4 },
-        { text: "21x21 (5-star, Hard)", dim: 21, stars: 5 },
-        { text: "25x25 (6-star, Hard)", dim: 25, stars: 6 },
-    ]
+	puzzleDefs: [
+	    // 5x5 Puzzles
+	    { text: "5x5 (1-star)", dim: 5, stars: 1, file: "5-1-unsorted.txt" },
+	    // 6x6 Puzzles
+	    { text: "6x6 (1-star)", dim: 6, stars: 1, file: "6-1-unsorted.txt" },
+	    // 8x8 Puzzles
+	    { text: "8x8 (1-star, Easy)", dim: 8, stars: 1, file: "8-1-ez.txt" },
+	    { text: "8x8 (1-star, Medium)", dim: 8, stars: 1, file: "8-1-med.txt" },
+	    { text: "8x8 (1-star, Hard)", dim: 8, stars: 1, file: "8-1-hard.txt" },
+	    { text: "8x8 (1-star, Expert)", dim: 8, stars: 1, file: "8-1-expert.txt" },
+	    { text: "8x8 (1-star, Unsorted)", dim: 8, stars: 1, file: "8-1-unsorted.txt" },
+	    // 9x9 Puzzles
+	    { text: "9x9 (1-star, Easy)", dim: 9, stars: 1, file: "9-1-ez.txt" },
+	    { text: "9x9 (1-star, Medium)", dim: 9, stars: 1, file: "9-1-med.txt" },
+	    { text: "9x9 (1-star, Hard)", dim: 9, stars: 1, file: "9-1-hard.txt" },
+	    { text: "9x9 (1-star, Unsorted)", dim: 9, stars: 1, file: "9-1-unsorted.txt" },
+	    { text: "9x9 (2-star, Easy)", dim: 9, stars: 2, file: "9-2-ez.txt" },
+	    { text: "9x9 (2-star, Medium)", dim: 9, stars: 2, file: "9-2-med.txt" },
+	    { text: "9x9 (2-star, Hard)", dim: 9, stars: 2, file: "9-2-hard.txt" },
+	    { text: "9x9 (2-star, Expert)", dim: 9, stars: 2, file: "9-2-expert.txt" },
+	    { text: "9x9 (2-star, Unsorted)", dim: 9, stars: 2, file: "9-2-unsorted.txt" },
+	    // 10x10 Puzzles
+	    { text: "10x10 (2-star, Easy)", dim: 10, stars: 2, file: "10-2-ez.txt" },
+	    { text: "10x10 (2-star, Medium)", dim: 10, stars: 2, file: "10-2-med.txt" },
+	    { text: "10x10 (2-star, Hard)", dim: 10, stars: 2, file: "10-2-hard.txt" },
+	    { text: "10x10 (2-star, Expert)", dim: 10, stars: 2, file: "10-2-expert.txt" },
+	    { text: "10x10 (2-star, Unsorted)", dim: 10, stars: 2, file: "10-2-unsorted.txt" },
+	    // 11x11 Puzzles
+	    { text: "11x11 (2-star, Medium)", dim: 11, stars: 2, file: "11-2-med.txt" },
+	    { text: "11x11 (2-star, Hard)", dim: 11, stars: 2, file: "11-2-hard.txt" },
+	    { text: "11x11 (2-star, Unsorted)", dim: 11, stars: 2, file: "11-2-unsorted.txt" },
+	    // 14x14 Puzzles
+	    { text: "14x14 (3-star, Medium)", dim: 14, stars: 3, file: "14-3-med.txt" },
+	    { text: "14x14 (3-star, Hard)", dim: 14, stars: 3, file: "14-3-hard.txt" },
+	    { text: "14x14 (3-star, Unsorted)", dim: 14, stars: 3, file: "14-3-unsorted.txt" },
+	    // 17x17 Puzzles
+	    { text: "17x17 (4-star)", dim: 17, stars: 4, file: "17-4-unsorted.txt" },
+	    // 21x21 Puzzles
+	    { text: "21x21 (5-star)", dim: 21, stars: 5, file: "21-5-unsorted.txt" },
+	    // 25x25 Puzzles
+	    { text: "25x25 (6-star)", dim: 25, stars: 6, file: "25-6-unsorted.txt" },
+	]
 };
 
 const API_BASE_URL = 'http://127.0.0.1:5001/api';
@@ -115,9 +142,7 @@ const API_BASE_URL = 'http://127.0.0.1:5001/api';
  */
 const LOCAL_STORAGE_KEY = 'starBattleSaves';
 
-
-// --- ADDED: SBN AND PUZZLE CONSTANTS (from constants.py) ---
-const PUZZLES_JSON_PATH = 'puzzles.json';
+const PUZZLES_DIRECTORY_PATH = 'puzzles/files/';
 
 const STATE_EMPTY = 0;
 const STATE_STAR = 1;
@@ -212,3 +237,4 @@ state.currentColor = PRESET_COLORS[0];
  * operations or a deep copy of the `customBorders` array.
  */
 let preActionState = null; // Used to store state before an action begins
+
