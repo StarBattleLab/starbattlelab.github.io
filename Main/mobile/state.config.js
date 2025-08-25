@@ -3,7 +3,7 @@
  * Title: Star Battle Puzzle Game State and Configuration
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.4
+ * @version 1.0.5
  * *-------------------------------------------------------------------------------
  * This script initializes and manages the entire state for a Star Battle puzzle
  * web application. It defines the central `state` object, which holds all dynamic
@@ -72,21 +72,48 @@ const state = {
     bufferCtx: null, // The 2D rendering context for the buffer canvas.
 
     // --- Puzzle Definitions ---
-    puzzleDefs: [ // A list of available puzzles with their properties.
-        { text: "5x5 (1-star, Easy)", dim: 5, stars: 1 },
-        { text: "6x6 (1-star, Easy)", dim: 6, stars: 1 },
-        { text: "6x6 (1-star, Medium)", dim: 6, stars: 1 },
-        { text: "8x8 (1-star, Medium)", dim: 8, stars: 1 },
-        { text: "8x8 (1-star, Hard)", dim: 8, stars: 1 },
-		{ text: "10x10 (2-star, Easy)", dim: 10, stars: 2 },
-        { text: "10x10 (2-star, Medium)", dim: 10, stars: 2 },
-        { text: "10x10 (2-star, Hard)", dim: 10, stars: 2 },
-        { text: "14x14 (3-star, Medium)", dim: 14, stars: 3 },
-        { text: "14x14 (3-star, Hard)", dim: 14, stars: 3 },
-        { text: "17x17 (4-star, Hard)", dim: 17, stars: 4 },
-        { text: "21x21 (5-star, Hard)", dim: 21, stars: 5 },
-        { text: "25x25 (6-star, Hard)", dim: 25, stars: 6 },
-    ]
+	puzzleDefs: [
+	    // 5x5 Puzzles
+	    { text: "5x5 (1-star)", dim: 5, stars: 1, file: "5-1-unsorted.txt" },
+	    // 6x6 Puzzles
+	    { text: "6x6 (1-star)", dim: 6, stars: 1, file: "6-1-unsorted.txt" },
+	    // 8x8 Puzzles
+	    { text: "8x8 (1-star, Easy)", dim: 8, stars: 1, file: "8-1-ez.txt" },
+	    { text: "8x8 (1-star, Medium)", dim: 8, stars: 1, file: "8-1-med.txt" },
+	    { text: "8x8 (1-star, Hard)", dim: 8, stars: 1, file: "8-1-hard.txt" },
+	    { text: "8x8 (1-star, Expert)", dim: 8, stars: 1, file: "8-1-expert.txt" },
+	    { text: "8x8 (1-star, Unsorted)", dim: 8, stars: 1, file: "8-1-unsorted.txt" },
+	    // 9x9 Puzzles
+	    { text: "9x9 (1-star, Easy)", dim: 9, stars: 1, file: "9-1-ez.txt" },
+	    { text: "9x9 (1-star, Medium)", dim: 9, stars: 1, file: "9-1-med.txt" },
+	    { text: "9x9 (1-star, Hard)", dim: 9, stars: 1, file: "9-1-hard.txt" },
+	    { text: "9x9 (1-star, Unsorted)", dim: 9, stars: 1, file: "9-1-unsorted.txt" },
+	    { text: "9x9 (2-star, Easy)", dim: 9, stars: 2, file: "9-2-ez.txt" },
+	    { text: "9x9 (2-star, Medium)", dim: 9, stars: 2, file: "9-2-med.txt" },
+	    { text: "9x9 (2-star, Hard)", dim: 9, stars: 2, file: "9-2-hard.txt" },
+	    { text: "9x9 (2-star, Expert)", dim: 9, stars: 2, file: "9-2-expert.txt" },
+	    { text: "9x9 (2-star, Unsorted)", dim: 9, stars: 2, file: "9-2-unsorted.txt" },
+	    // 10x10 Puzzles
+	    { text: "10x10 (2-star, Easy)", dim: 10, stars: 2, file: "10-2-ez.txt" },
+	    { text: "10x10 (2-star, Medium)", dim: 10, stars: 2, file: "10-2-med.txt" },
+	    { text: "10x10 (2-star, Hard)", dim: 10, stars: 2, file: "10-2-hard.txt" },
+	    { text: "10x10 (2-star, Expert)", dim: 10, stars: 2, file: "10-2-expert.txt" },
+	    { text: "10x10 (2-star, Unsorted)", dim: 10, stars: 2, file: "10-2-unsorted.txt" },
+	    // 11x11 Puzzles
+	    { text: "11x11 (2-star, Medium)", dim: 11, stars: 2, file: "11-2-med.txt" },
+	    { text: "11x11 (2-star, Hard)", dim: 11, stars: 2, file: "11-2-hard.txt" },
+	    { text: "11x11 (2-star, Unsorted)", dim: 11, stars: 2, file: "11-2-unsorted.txt" },
+	    // 14x14 Puzzles
+	    { text: "14x14 (3-star, Medium)", dim: 14, stars: 3, file: "14-3-med.txt" },
+	    { text: "14x14 (3-star, Hard)", dim: 14, stars: 3, file: "14-3-hard.txt" },
+	    { text: "14x14 (3-star, Unsorted)", dim: 14, stars: 3, file: "14-3-unsorted.txt" },
+	    // 17x17 Puzzles
+	    { text: "17x17 (4-star)", dim: 17, stars: 4, file: "17-4-unsorted.txt" },
+	    // 21x21 Puzzles
+	    { text: "21x21 (5-star)", dim: 21, stars: 5, file: "21-5-unsorted.txt" },
+	    // 25x25 Puzzles
+	    { text: "25x25 (6-star)", dim: 25, stars: 6, file: "25-6-unsorted.txt" },
+	]
 };
 
 // --- API & STORAGE CONSTANTS ---
@@ -142,7 +169,7 @@ let preActionState = null;
 
 
 // --- ADDED: SBN AND PUZZLE CONSTANTS ---
-const PUZZLES_JSON_PATH = 'puzzles.json';
+const PUZZLES_DIRECTORY_PATH = 'puzzles/files/';
 const STATE_EMPTY = 0;
 const STATE_STAR = 1;
 const STATE_SECONDARY_MARK = 2;
@@ -155,3 +182,4 @@ const SBN_CODE_TO_DIM_MAP = {
     'NN': 23, 'OO': 24, 'PP': 25
 };
 const DIM_TO_SBN_CODE_MAP = Object.fromEntries(Object.entries(SBN_CODE_TO_DIM_MAP).map(([k, v]) => [v, k]));
+
