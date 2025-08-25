@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Main Application Logic
  *
  * @author Isaiah Tadrous
- * @version 1.9.2
+ * @version 1.9.3
  *
  * -------------------------------------------------------------------------------
  *
@@ -113,52 +113,63 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- LOCAL SOLVER & DATA HANDLING FUNCTIONS ---
 
     /**
-     * Fetches a new puzzle from the local puzzles.json file.
+     * Fetches a new puzzle from the local puzzles dir.
      * Updates the application state with the new puzzle data and re-renders the grid.
      */
     async function fetchNewPuzzle() {
-        setLoading(true);
-        const sizeId = sizeSelect.value;
-        try {
-            const response = await fetch(PUZZLES_JSON_PATH);
-            if (!response.ok) throw new Error(`Failed to load puzzles.json: ${response.statusText}`);
-            const allPuzzles = await response.json();
-
-            const puzzlesForSize = allPuzzles[sizeId];
-            if (!puzzlesForSize || puzzlesForSize.length === 0) throw new Error(`No puzzles found for size_id ${sizeId}`);
-
-            const randomSbn = puzzlesForSize[Math.floor(Math.random() * puzzlesForSize.length)];
-            const puzzleData = decodeSbn(randomSbn);
-
-            if (puzzleData) {
-                const {
-                    grid,
-                    dim
-                } = parseAndValidateGrid(puzzleData.task);
-                if (grid) {
-                    state.regionGrid = grid;
-                    state.starsPerRegion = puzzleData.stars;
-                    state.sourcePuzzleData = {
-                        task: puzzleData.task,
-                        stars: puzzleData.stars
-                    }; // Store source
-                    state.gridDim = dim;
-                    state.solution = null;
-                    updateSolutionButtonUI();
-                    clearPuzzleState();
-                    renderGrid();
-                    updateUrlWithSbn();
-                }
-            } else {
-                throw new Error('Failed to decode SBN from local file');
-            }
-        } catch (error) {
-            console.error("Error fetching new puzzle:", error);
-            setStatus("Failed to load puzzle.", false);
-        } finally {
-            setLoading(false);
-        }
-    }
+	    setLoading(true);
+	    const sizeId = sizeSelect.value;
+	    const puzzleDef = state.puzzleDefs[sizeId];
+	
+	    if (!puzzleDef || !puzzleDef.file) {
+	        console.error("Selected puzzle definition is invalid or missing a filename.");
+	        setStatus("Could not load puzzle definition.", false);
+	        setLoading(false);
+	        return;
+	    }
+	
+	    const puzzlePath = PUZZLES_DIRECTORY_PATH + puzzleDef.file;
+	
+	    try {
+	        const response = await fetch(puzzlePath);
+	        if (!response.ok) {
+	            throw new Error(`Failed to load ${puzzlePath}: ${response.statusText}`);
+	        }
+	        const textContent = await response.text();
+	        
+	        // Split the text file content by new lines and filter out any empty lines.
+	        const puzzlesForSize = textContent.split('\n').filter(line => line.trim() !== '');
+	
+	        if (!puzzlesForSize || puzzlesForSize.length === 0) {
+	            throw new Error(`No puzzles found in file ${puzzleDef.file}`);
+	        }
+	
+	        const randomSbn = puzzlesForSize[Math.floor(Math.random() * puzzlesForSize.length)];
+	        const puzzleData = decodeSbn(randomSbn);
+	
+	        if (puzzleData) {
+	            const { grid, dim } = parseAndValidateGrid(puzzleData.task);
+	            if (grid) {
+	                state.regionGrid = grid;
+	                state.starsPerRegion = puzzleData.stars;
+	                state.sourcePuzzleData = { task: puzzleData.task, stars: puzzleData.stars };
+	                state.gridDim = dim;
+	                state.solution = null;
+	                updateSolutionButtonUI();
+	                clearPuzzleState();
+	                renderGrid();
+	                updateUrlWithSbn();
+	            }
+	        } else {
+	            throw new Error('Failed to decode SBN from local file');
+	        }
+	    } catch (error) {
+	        console.error("Error fetching new puzzle:", error);
+	        setStatus("Failed to load puzzle.", false);
+	    } finally {
+	        setLoading(false);
+	    }
+	}
 
 
     /**
@@ -708,4 +719,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init(); // Run the initialization function when the DOM is ready.
 });
+
 
