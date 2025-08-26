@@ -96,7 +96,8 @@ const state = {
 	    { text: "8x8 (1-star, Easy)", dim: 8, stars: 1, file: "8-1-ez.txt" },
 	    { text: "8x8 (1-star, Medium)", dim: 8, stars: 1, file: "8-1-med.txt" },
 	    { text: "8x8 (1-star, Hard)", dim: 8, stars: 1, file: "8-1-hard.txt" },
-	    { text: "8x8 (1-star, Expert)", dim: 8, stars: 1, file: "8-1-expert.txt" },
+	    { text: "8x8 (1-star, Ambiguous
+)", dim: 8, stars: 1, file: "8-1-expert.txt" },
 	    { text: "8x8 (1-star, Unsorted)", dim: 8, stars: 1, file: "8-1-unsorted.txt" },
 	    // 9x9 Puzzles
 	    { text: "9x9 (1-star, Easy)", dim: 9, stars: 1, file: "9-1-ez.txt" },
@@ -106,13 +107,13 @@ const state = {
 	    { text: "9x9 (2-star, Easy)", dim: 9, stars: 2, file: "9-2-ez.txt" },
 	    { text: "9x9 (2-star, Medium)", dim: 9, stars: 2, file: "9-2-med.txt" },
 	    { text: "9x9 (2-star, Hard)", dim: 9, stars: 2, file: "9-2-hard.txt" },
-	    { text: "9x9 (2-star, Expert)", dim: 9, stars: 2, file: "9-2-expert.txt" },
+	    { text: "9x9 (2-star, Ambiguous)", dim: 9, stars: 2, file: "9-2-expert.txt" },
 	    { text: "9x9 (2-star, Unsorted)", dim: 9, stars: 2, file: "9-2-unsorted.txt" },
 	    // 10x10 Puzzles
 	    { text: "10x10 (2-star, Easy)", dim: 10, stars: 2, file: "10-2-ez.txt" },
 	    { text: "10x10 (2-star, Medium)", dim: 10, stars: 2, file: "10-2-med.txt" },
 	    { text: "10x10 (2-star, Hard)", dim: 10, stars: 2, file: "10-2-hard.txt" },
-	    { text: "10x10 (2-star, Expert)", dim: 10, stars: 2, file: "10-2-expert.txt" },
+	    { text: "10x10 (2-star, Ambiguous)", dim: 10, stars: 2, file: "10-2-expert.txt" },
 	    { text: "10x10 (2-star, Unsorted)", dim: 10, stars: 2, file: "10-2-unsorted.txt" },
 	    // 11x11 Puzzles
 	    { text: "11x11 (2-star, Medium)", dim: 11, stars: 2, file: "11-2-med.txt" },
@@ -237,4 +238,5 @@ state.currentColor = PRESET_COLORS[0];
  * operations or a deep copy of the `customBorders` array.
  */
 let preActionState = null; // Used to store state before an action begins
+
 
