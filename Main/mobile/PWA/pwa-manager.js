@@ -25,7 +25,7 @@ function registerServiceWorker() {
     // Check if service workers are supported by the browser
     if ('serviceWorker' in navigator) {
         // Register the service worker
-        navigator.serviceWorker.register('/service-worker.js').then(registration => {
+        navigator.serviceWorker.register('/PWA/service-worker.js').then(registration => {
             console.log('Service Worker registered with scope:', registration.scope);
 
             // Listen for updates to the service worker
