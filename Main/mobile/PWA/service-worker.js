@@ -25,7 +25,7 @@ const CORE_ASSETS = [
     '/index.html',
     '/style.css',
     '/tailwind.css',
-    '/manifest.json',
+    '/PWA/manifest.json',
 
     // --- Core Application Scripts ---
     '/app.init.js',
@@ -38,7 +38,7 @@ const CORE_ASSETS = [
     '/view.renderer.js',
     '/solver.js',
     '/mobile_import.js',
-    '/pwa-manager.js',
+    '/PWA/pwa-manager.js',
 
     // --- PWA Icons ---
     '/icons/icon-192x192.png',
