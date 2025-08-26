@@ -3,7 +3,7 @@
  * * Title:       UI Management & Interaction Controller
  * *
  * * @author      Isaiah Tadrous
- * * @version     1.0.0
+ * * @version     1.0.1
  * * -------------------------------------------------------------------------------
  * * Description: This script manages the user interface (UI) and handles all user
  * * interactions for a web-based Star Battles. Its primary features include
@@ -93,7 +93,7 @@ function populateSizeSelector() {
         option.textContent = def.text;
         sizeSelect.appendChild(option);
     });
-    sizeSelect.value = 5;
+    sizeSelect.value = 12;
 }
 
 /**
@@ -368,4 +368,5 @@ function handleInteractionEnd(e) {
     if (wasDrawingBorder) {
         redrawAllOverlays();
     }
+
 }
