@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sizeSelect.appendChild(option);
         });
         // Sets a default selection, e.g., the 6x6 puzzle.
-        sizeSelect.value = 5;
+        sizeSelect.value = 12;
     }
 
     /**
@@ -719,5 +719,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     init(); // Run the initialization function when the DOM is ready.
 });
+
 
 
