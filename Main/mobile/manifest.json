@@ -1,0 +1,21 @@
+{
+    "name": "StarBattleLab",
+    "short_name": "StarLabs",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "background_color": "#374151",
+    "theme_color": "#1F2937",
+    "description": "Star Battle Playground!",
+    "icons": [
+        {
+            "src": "/icons/icon-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
