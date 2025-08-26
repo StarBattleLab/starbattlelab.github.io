@@ -96,8 +96,7 @@ const state = {
 	    { text: "8x8 (1-star, Easy)", dim: 8, stars: 1, file: "8-1-ez.txt" },
 	    { text: "8x8 (1-star, Medium)", dim: 8, stars: 1, file: "8-1-med.txt" },
 	    { text: "8x8 (1-star, Hard)", dim: 8, stars: 1, file: "8-1-hard.txt" },
-	    { text: "8x8 (1-star, Ambiguous
-)", dim: 8, stars: 1, file: "8-1-expert.txt" },
+	    { text: "8x8 (1-star, Ambiguous)", dim: 8, stars: 1, file: "8-1-expert.txt" },
 	    { text: "8x8 (1-star, Unsorted)", dim: 8, stars: 1, file: "8-1-unsorted.txt" },
 	    // 9x9 Puzzles
 	    { text: "9x9 (1-star, Easy)", dim: 9, stars: 1, file: "9-1-ez.txt" },
@@ -238,5 +237,6 @@ state.currentColor = PRESET_COLORS[0];
  * operations or a deep copy of the `customBorders` array.
  */
 let preActionState = null; // Used to store state before an action begins
+
 
 
