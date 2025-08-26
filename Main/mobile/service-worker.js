@@ -19,7 +19,7 @@
 
 const CACHE_NAME = 'star-battle-cache-v1';
 // --- COMPLETE LIST OF ASSETS TO CACHE FOR OFFLINE USE ---
-const urlsToCache = [
+const CORE_ASSETS = [
     // --- Core App Shell ---
     '/',
     '/index.html',
@@ -55,39 +55,48 @@ const urlsToCache = [
     '/SnapGridScripts/imagePreProcessor.js',
     '/SnapGridScripts/lineDurabilityFilter.js',
     '/SnapGridScripts/speedinvert.js',
-
-    // --- UPDATED: Individual Puzzle Data Files ---
-    '/puzzles/Files/5-1-unsorted.txt',
-    '/puzzles/Files/6-1-unsorted.txt',
-    '/puzzles/Files/8-1-expert.txt',
-    '/puzzles/Files/8-1-ez.txt',
-    '/puzzles/Files/8-1-hard.txt',
-    '/puzzles/Files/8-1-med.txt',
-    '/puzzles/Files/8-1-unsorted.txt',
-    '/puzzles/Files/9-1-ez.txt',
-    '/puzzles/Files/9-1-hard.txt',
-    '/puzzles/Files/9-1-med.txt',
-    '/puzzles/Files/9-1-unsorted.txt',
-    '/puzzles/Files/9-2-expert.txt',
-    '/puzzles/Files/9-2-ez.txt',
-    '/puzzles/Files/9-2-hard.txt',
-    '/puzzles/Files/9-2-med.txt',
-    '/puzzles/Files/9-2-unsorted.txt',
-    '/puzzles/Files/10-2-expert.txt',
-    '/puzzles/Files/10-2-ez.txt',
-    '/puzzles/Files/10-2-hard.txt',
-    '/puzzles/Files/10-2-med.txt',
-    '/puzzles/Files/10-2-unsorted.txt',
-    '/puzzles/Files/11-2-hard.txt',
-    '/puzzles/Files/11-2-med.txt',
-    '/puzzles/Files/11-2-unsorted.txt',
-    '/puzzles/Files/14-3-hard.txt',
-    '/puzzles/Files/14-3-med.txt',
-    '/puzzles/Files/14-3-unsorted.txt',
-    '/puzzles/Files/17-4-unsorted.txt',
-    '/puzzles/Files/21-5-unsorted.txt',
-    '/puzzles/Files/25-6-unsorted.txt'
 ];
+
+    
+/**
+ * Fetches the state.config.js file, parses it to find the puzzle file paths,
+ * and returns a complete list of all assets to be cached.
+ * @returns {Promise<string[]>} A promise that resolves to the full list of cacheable URLs.
+ */
+async function getAllAssetsToCache() {
+    try {
+        // Fetch the configuration file
+        const response = await fetch('/state.config.js');
+        const scriptContent = await response.text();
+
+        // Use a regular expression to find the puzzleDefs array in the script text
+        const puzzleDefsMatch = scriptContent.match(/puzzleDefs:\s*\[([\s\S]*?)\]/);
+        if (!puzzleDefsMatch || !puzzleDefsMatch[1]) {
+            console.error("Could not find puzzleDefs in state.config.js. Using core assets only.");
+            return CORE_ASSETS;
+        }
+
+        // A safer way to parse the array-like string into an actual array of objects.
+        // This avoids the risks of using eval().
+        const puzzleDefsArrayStr = `[${puzzleDefsMatch[1]}]`;
+        // This is a bit of a hack, but it's safer than eval. We create a function and execute it.
+        const puzzleDefs = new Function(`return ${puzzleDefsArrayStr}`)();
+        
+        // Extract the file paths and prepend the directory path
+        const puzzleFiles = puzzleDefs.map(def => `/puzzles/Files/${def.file}`);
+        
+        // Combine the core assets with the dynamically found puzzle files
+        const allAssets = [...CORE_ASSETS, ...puzzleFiles];
+        console.log("Assets to cache:", allAssets);
+        return allAssets;
+
+    } catch (error) {
+        console.error("Failed to dynamically generate asset list. Falling back to core assets.", error);
+        // If anything goes wrong, just cache the core files to keep the app shell working.
+        return CORE_ASSETS;
+    }
+}
+
 
 
 // --- SERVICE WORKER LIFECYCLE EVENTS ---
@@ -98,13 +107,15 @@ const urlsToCache = [
  */
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(CACHE_NAME)
-        .then(cache => {
-            console.log('Opened cache and caching all application assets for offline use.');
-            return cache.addAll(urlsToCache);
+        getAllAssetsToCache().then(assets => {
+            return caches.open(CACHE_NAME).then(cache => {
+                console.log('Opened cache and caching all application assets for offline use.');
+                return cache.addAll(assets);
+            });
         })
     );
 });
+
 
 /**
  * @description The 'activate' event is fired when the service worker becomes active.
