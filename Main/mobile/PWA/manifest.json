@@ -1,11 +1,11 @@
 {
-    "name": "StarBattleLab",
-    "short_name": "StarLabs",
+    "name": "StarBattle.org",
+    "short_name": "StarBattles",
     "start_url": "/index.html",
     "display": "standalone",
     "background_color": "#374151",
     "theme_color": "#1F2937",
-    "description": "Star Battle Playground!",
+    "description": "StarBattle.org Playground!",
     "icons": [
         {
             "src": "/icons/icon-192x192.png",
