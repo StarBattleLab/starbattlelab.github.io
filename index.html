@@ -1,0 +1,289 @@
+<!-- ===============================================================================
+ * 
+ *	Title: Starbattle.org - Main Landing Page
+ *
+ *	@author Isaiah Tadrous
+ *	@version 1.0.0
+ *
+ *	Description:
+ *	This HTML file serves as the main landing page for the Starbattle.org project.
+ *	It is designed to be the central hub for visitors, introducing them to the 
+ *	Star Battle puzzle community, the project's mission, and its open-source nature.
+ *	The page features a modern, responsive design built with Tailwind CSS, including 
+ *	an animated starfield background and glassmorphism UI elements. Key sections 
+ *	include a hero with calls-to-action for the live demo and GitHub, an "About Us" 
+ *	section, and a "Meet The Team" showcase. The navigation provides links to 
+ *	community resources like Discord and the project Wiki.
+ *	
+ **********************************************************************************
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Starbattle.org</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0c0a18; /* Deep space blue */
+            color: #e0e0e0;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .font-space {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Animated Starfield Background */
+        .stars {
+            background: #0c0a18 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAllBMVEUAAAD///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8ELnaCAAAAMXRSTlMAAQMFDBUXGBodHiQlJykqODlAQUlMUldeYWhrbW98f4CMlJmrrbS9wszP19/v8/U6+f0kAAAAAWJLR0QAiAUdSAAAAAlwSFlzAAALEwAACxMBAJqcGAAAAcJJREFUOMt91Ol7okAQBeB9TCAqmver2/Zt3/f/v20IUKz2nAs7zG2mMQb8OqfL5AEgQGvB4GAQ2oMDyGPLcLDIC5g5Q4yZmFBnZqZlZk6cOXPmvHkLFiwYseLENWvWrNmwacsWbds2bt22Z8+e/ft3cFzHcRzHcRwncex5nme5LqvsGgDX2u22W2655ZY774Jv2w4g1AF4gD/gA/yBP/AF/sAH+AOf4A/8gQ/wBz7AH/gDf+AP/AF/4A/8gQ/wBz7AH/gDf+AP/IEMJ0yYMGnSlClTp01bNm3atGnTpg0bNmyYMWM2b948ffr06TNgEPiH9g0gACDxA14gEBCIhIRETJhESkpKRpZkZWVnZmZmZuYWVk5WVlZWUlKSkpKSkZGREZGQEREQCICH/wI8IBIYiYSESExMTk5OUIaVMTk5OTk5OTk5OTk1NTUxMSEhIRERCIgAEC/4D29kEABAFiYmJiYlJSUlJycnJ2dnZ2dnZ2dnZ2dnZ2dlZWVlJSUlJSUlISEgECBAIAwP9oPJ7P5/P5/H4/Hw+Hw+GwWCwWi8VicVgsFovFYrFYLBaLxeLxeDwejwfgD/gD/tz/4A/8AegJ9/8BXwD0623sW5AAAAAASUVORK5CYII=) repeat;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: -1;
+            animation: move-twink-back 200s linear infinite;
+        }
+
+        @keyframes move-twink-back {
+            from {
+                background-position: 0 0;
+            }
+            to {
+                background-position: -10000px 5000px;
+            }
+        }
+        
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(22, 21, 41, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(118, 124, 255, 0.18);
+        }
+
+        /* Neon Glow Effect for Buttons */
+        .neon-button {
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px #767cff, 0 0 15px #767cff, 0 0 25px #767cff, 0 0 35px #767cff;
+        }
+        .neon-button:hover {
+            box-shadow: 0 0 10px #767cff, 0 0 25px #767cff, 0 0 50px #767cff, 0 0 75px #767cff;
+        }
+
+        /* Gradient Text Style */
+        .gradient-text {
+            background: linear-gradient(90deg, #a5b4fc, #767cff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="stars"></div>
+
+    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 glass-card">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold font-space text-white">
+                STARBATTLE.ORG
+            </a>
+            <nav class="hidden md:flex items-center space-x-8">
+                <a href="https://github.com/StarBattleLab/starbattlelab.github.io" target="_blank" class="text-gray-300 hover:text-white transition-colors duration-300">GitHub</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Wiki</a>
+                <a href="https://www.starbattle.org/Extensions/discord.html" target="_blank" class="bg-indigo-500 text-white px-4 py-2 rounded-md hover:bg-indigo-600 transition-colors duration-300">Discord Hub</a>
+            </nav>
+            <button class="md:hidden text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <main class="pt-24">
+        <section class="container mx-auto px-6 py-24 text-center">
+            <h1 class="text-5xl md:text-7xl font-extrabold text-white font-space leading-tight">
+                Stars to place, <br/> <span class="gradient-text">challenge awaits.</span>
+            </h1>
+            <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-300">
+                Welcome to the ultimate hub for Star Battle enthusiasts. Here, you can solve, create, and share puzzles while exploring strategies that turn logic into art.
+            </p>
+            <div class="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
+                <a href="https://www.starbattle.org/Main" class="w-full sm:w-auto bg-indigo-500 text-white font-semibold py-3 px-8 rounded-lg text-lg neon-button">
+                    Play Live Demo
+                </a>
+                <a href="https://github.com/StarBattleLab/starbattlelab.github.io" target="_blank" class="w-full sm:w-auto glass-card text-white font-semibold py-3 px-8 rounded-lg text-lg hover:bg-indigo-900/50 transition-all duration-300 flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                    Open Source
+                </a>
+            </div>
+        </section>
+
+        <section id="about" class="py-20 bg-[#100e23]/50">
+            <div class="container mx-auto px-6 grid md:grid-cols-9 gap-12 items-center">
+                <div class="md:col-span-7">
+                    <h2 class="text-4xl font-bold text-white mb-4 font-space">About Us</h2>
+                    <p class="text-gray-300 mb-4">
+                        starbattle.org was born from a shared passion for these puzzles. We found Star Battle to be an elegant, challenging, and deeply satisfying game, yet there was no central place for the community to gather, solve, and create.
+                    </p>
+                    <p class="text-gray-300 mb-4">
+                        Since 2020, Joseph Bryant has been developing techniques and strategies for Star Battles, quickly becoming captivated by its logical beauty and depth. What began as simple curiosity soon grew into a full analysis of the puzzle’s structure exploring new solving methods and carefully curating strategies to make sense of its complexity. This journey revealed not only the richness of Star Battles itself, but also the need for a dedicated space where players could learn, share, and expand their strategies together.
+                    </p>
+                    <p class="text-gray-300">
+                        That vision became the foundation of Starbattle.org. Our goal is to create more than just a platform we aim to be the definitive hub for everything Star Battle. Here, you’ll find not only an open-source environment for playing and creating puzzles, but also a living archive of strategies, proofs, and solving techniques that document the evolving craft. From daily challenges on our Discord, to advanced puzzle generation methods, to systematic algorithms for solving theory, we are building tools that empower players of all levels. We are community driven, open-source, and dedicated to the art and science of logic. This is the place where strategy meets creativity, and where the Star Battle community can finally thrive.
+                    </p>
+                </div>
+                <div class="md:col-span-2 grid grid-cols-1 gap-6">
+                    <div class="glass-card p-6 rounded-lg text-center">
+                        <h3 class="text-3xl font-bold gradient-text">Open Source</h3>
+                        <p class="text-gray-400 mt-1">Community Built</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-lg text-center">
+                        <h3 class="text-3xl font-bold gradient-text">Strategy</h3>
+                        <p class="text-gray-400 mt-1">Learn and master solving techniques</p>
+                    </div>
+                    <div class="glass-card p-6 rounded-lg text-center">
+                        <h3 class="text-3xl font-bold gradient-text">Growing</h3>
+                        <p class="text-gray-400 mt-1">Discord Community</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="devs" class="py-20">
+            <div class="container mx-auto px-6">
+                <h2 class="text-4xl font-bold text-white text-center mb-12 font-space">Meet The Team</h2>
+                <div class="flex flex-wrap justify-center gap-8">
+
+                    <a href="https://github.com/itadrous73" target="_blank" rel="noopener noreferrer" class="group block max-w-xs flex-col transition-all duration-300 hover:!opacity-100 lg:hover:scale-105">
+                        <div class="relative overflow-hidden rounded-lg h-full">
+                            <img src="https://avatars.githubusercontent.com/u/90001927?v=4" alt="Profile picture of Isaiah Tadrous" class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            <div class="absolute bottom-0 left-0 p-4 w-full flex justify-between items-end">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Isaiah Tadrous</h3>
+                                    <p class="text-indigo-300">isaiah@starbattle.org</p>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <a href="https://github.com/itadrous73" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors"><svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+                                    <button class="copy-email-btn text-gray-300 hover:text-white transition-colors" data-email="isaiah@starbattle.org" data-message-container="copy-message-1">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                                    </button>
+                                    <span id="copy-message-1" class="text-sm text-indigo-300 transition-opacity duration-300 opacity-0">Copied!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://github.com/joey-bryant" target="_blank" rel="noopener noreferrer" class="group block max-w-xs flex-col transition-all duration-300 hover:!opacity-100 lg:hover:scale-105">
+                        <div class="relative overflow-hidden rounded-lg h-full">
+                            <img src="https://avatars.githubusercontent.com/u/91710586?v=4" alt="Profile picture of Joseph Bryant" class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            <div class="absolute bottom-0 left-0 p-4 w-full flex justify-between items-end">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Joseph Bryant</h3>
+                                    <p class="text-indigo-300">joey@starbattle.org</p>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <a href="https://github.com/joey-bryant" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors"><svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+                                    <button class="copy-email-btn text-gray-300 hover:text-white transition-colors" data-email="joey@starbattle.org" data-message-container="copy-message-2">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                                    </button>
+                                    <span id="copy-message-2" class="text-sm text-indigo-300 transition-opacity duration-300 opacity-0">Copied!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://github.com/jamesyoung2" target="_blank" rel="noopener noreferrer" class="group block max-w-xs flex-col transition-all duration-300 hover:!opacity-100 lg:hover:scale-105">
+                        <div class="relative overflow-hidden rounded-lg h-full">
+                            <img src="https://avatars.githubusercontent.com/u/112014157?v=4" alt="Profile picture of James Young" class="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                            <div class="absolute bottom-0 left-0 p-4 w-full flex justify-between items-end">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">James Young</h3>
+                                    <p class="text-indigo-300">james.young@starbattle.org</p>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <a href="https://github.com/jamesyoung2" target="_blank" rel="noopener noreferrer" class="text-gray-300 hover:text-white transition-colors"><svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+                                    <button class="copy-email-btn text-gray-300 hover:text-white transition-colors" data-email="james.young@starbattle.org" data-message-container="copy-message-3">
+                                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/></svg>
+                                    </button>
+                                    <span id="copy-message-3" class="text-sm text-indigo-300 transition-opacity duration-300 opacity-0">Copied!</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-[#100e23]/70 border-t border-indigo-900/30">
+        <div class="container mx-auto px-6 py-8">
+            <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                <p class="text-gray-400">&copy; 2025 starbattle.org. All rights reserved.</p>
+                <div class="flex space-x-6">
+                    <a href="#about" class="text-gray-400 hover:text-white">About</a>
+                    <a href="https://github.com/StarBattleLab/starbattlelab.github.io" target="_blank" class="text-gray-400 hover:text-white">GitHub</a>
+                    <a href="https://www.starbattle.org/Extensions/discord.html" target="_blank" class="text-gray-400 hover:text-white">Discord</a>
+                    <a href="#" class="text-gray-400 hover:text-white">Wiki</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const copyButtons = document.querySelectorAll('.copy-email-btn');
+
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function (event) {
+                    // Prevent the click event from navigating the parent <a> tag
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const email = this.dataset.email;
+                    const messageContainerId = this.dataset.messageContainer;
+                    const messageEl = document.getElementById(messageContainerId);
+
+                    // Use the modern Navigator Clipboard API for copying text
+                    navigator.clipboard.writeText(email).then(() => {
+                        // On success, show the "Copied!" message
+                        if (messageEl) {
+                            messageEl.classList.remove('opacity-0');
+                        }
+                        
+                        // Hide the message again after 2 seconds
+                        setTimeout(() => {
+                            if (messageEl) {
+                                messageEl.classList.add('opacity-0');
+                            }
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy email: ', err);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
