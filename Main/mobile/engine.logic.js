@@ -3,7 +3,7 @@
  * Title: Star Battle Game Logic and History Management
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.2
+ * @version 1.1.0
  * *-------------------------------------------------------------------------------
  * This script contains the core game logic and state manipulation functions for
  * the Star Battle puzzle application. It is responsible for handling player
@@ -181,6 +181,7 @@ function removeStarAndUndoAutoX(r, c) {
             pushHistory({ type: 'compoundMark', changes: [change] });
         }
     }
+	performAutoCheck({ r, c });
     updateErrorHighlightingUI();
 }
 
@@ -333,8 +334,12 @@ function undo() {
             state.customBorders.pop();
             redrawAllOverlays();
             break;
-        case 'removeCellFromBorder':
-            state.customBorders[change.borderIndex].path.add(change.cell);
+        case 'compoundEraseBorder':
+            change.changes.forEach(c => {
+                if (state.customBorders[c.borderIndex]) {
+                    state.customBorders[c.borderIndex].path.add(c.cell);
+                }
+            });
             redrawAllOverlays();
             break;
         case 'clearMarks':
@@ -385,8 +390,12 @@ function redo() {
             state.customBorders.push(change.border);
             redrawAllOverlays();
             break;
-        case 'removeCellFromBorder':
-            state.customBorders[change.borderIndex].path.delete(change.cell);
+        case 'compoundEraseBorder':
+            change.changes.forEach(c => {
+                if (state.customBorders[c.borderIndex]) {
+                    state.customBorders[c.borderIndex].path.delete(c.cell);
+                }
+            });
             redrawAllOverlays();
             break;
         case 'clearMarks':
@@ -456,7 +465,8 @@ function saveSettings() {
             autoXOnMaxLines: state.autoXOnMaxLines,
             autoXOnMaxRegions: state.autoXOnMaxRegions,
             markIsX: state.markIsX,
-
+			showTimer: state.showTimer,
+            currentPuzzleSelection: state.currentPuzzleSelection,
         };
         localStorage.setItem(APP_SETTINGS_KEY, JSON.stringify(settingsToSave));
     } catch (error) {
@@ -486,6 +496,7 @@ function loadSettings() {
             autoXAroundToggle.checked = state.autoXAroundStars;
             autoXMaxLinesToggle.checked = state.autoXOnMaxLines;
             autoXMaxRegionsToggle.checked = state.autoXOnMaxRegions;
+			showTimerToggle.checked = state.showTimer;
 
             // Update other UI elements
             toggleMarkBtn.textContent = state.markIsX ? "Dots" : "Xs";
