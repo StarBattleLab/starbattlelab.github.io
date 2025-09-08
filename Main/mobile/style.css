@@ -373,7 +373,7 @@ button:disabled, .toolbar-btn:disabled {
 /* Modal Container */
 .modal-container {
     position: relative;
-    background-color: #2d2d2d;
+    background-color: rgb(17 24 39);
     color: #f0f0f0;
     border-radius: 10px;
     padding: 30px 20px 25px;
@@ -507,4 +507,5 @@ button:disabled, .toolbar-btn:disabled {
 #puzzle-select-modal {
 	z-index: 110;
 }
+
 
