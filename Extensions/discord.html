@@ -1,17 +1,17 @@
 <!-- ===============================================================================
 
   *                                                                              
-  *  Title: Parse the Stars - Discord Community Hub                              
+  *  Title: Starbattle.org - Discord Community Hub                              
   *                                                                              
   *  @author Isaiah Tadrous                                                       
-  *  @version 1.0.1                                                               
+  *  @version 1.1.0                                                               
   *                                                                              
   * -------------------------------------------------------------------------------
   *                                                                              
   *  Description:                                                                
   *                                                                              
   *  This HTML file runs a single-page web application that acts as a community  
-  *  hub for the "Parse the Stars" Discord server, which focuses on the Star     
+  *  hub for the Starbattle Discord server, which focuses on the Star     
   *  Battle puzzle game. Built using React and styled with Tailwind CSS, the     
   *  app loads entirely in the browser from a single HTML file.                  
   *                                                                              
@@ -36,6 +36,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" type="image/png" href="../Icons/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="../Icons/favicon.svg" />
+	<link rel="shortcut icon" href="../Icons/favicon.ico" />
     <title>Discord Community Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -211,12 +214,12 @@
 				<
 				div className = "flex items-center gap-3 mb-8" >
 				<
-				img src = "https://cdn.discordapp.com/icons/1392611643476672583/b4b4aa5c8b8ed72ce9d8e6e77ae40664.png?size=60&quality=lossless"
+				img src = "https://cdn.discordapp.com/icons/1392611643476672583/59e15dd0ffe4a6cfce9702858b9dbeb2.png?size=600&quality=lossless"
 				alt = "Logo"
-				className = "w-12 h-12 rounded-full" / >
+				className = "w-16 h-16 rounded-full" / > 
+				<h1 className = "text-3xl font-bold text-white" > StarBattle < /h1>
+				</div>	
 				<
-				h1 className = "text-xl font-bold text-white" > Parse the Stars < /h1> <
-				/div> <
 				nav className = "flex-grow" >
 				<
 				ul className = "space-y-2" > {
@@ -894,4 +897,3 @@
 </body>
 
 </html>
-
