@@ -3,16 +3,14 @@
  * Title: Star Battle Application Initializer and Event Wiring
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.3
+ * @version 1.1.0
  * *-------------------------------------------------------------------------------
  * This script serves as the main entry point for the Star Battle web application.
  * It waits for the DOM to be fully loaded and then executes the primary `init`
- * function. This function is responsible for wiring up all interactive UI
- * elements to their corresponding logic handlers. It defines a custom helper
- * for creating responsive event listeners that work seamlessly on both touch
- * and mouse-based devices. It connects all buttons, modals, settings toggles,
- * and the main grid interaction events to the appropriate functions, effectively
- * bootstrapping the entire application and making it ready for user interaction.
+ * function. It now checks for a shared puzzle in the URL using the '?sbn=' format
+ * to modify the home screen state. It is responsible for wiring up all interactive
+ * UI elements to their corresponding logic handlers and generating share links
+ * in the specified format.
  * **********************************************************************************
  */
 
@@ -25,6 +23,15 @@ document.addEventListener('DOMContentLoaded', () => {
      * @returns {void}
      */
     function init() {
+        // Detect a puzzle from the URL using the 'sbn' parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const puzzleFromUrl = urlParams.get('sbn');
+        if (puzzleFromUrl) {
+            state.puzzleFromUrl = decodeURIComponent(puzzleFromUrl);
+            // Clean up the URL so it's not reused on refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         // --- RESPONSIVE EVENT LISTENER HELPER ---
 
         /**
@@ -64,16 +71,40 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- MAIN UI EVENT WIRING ---
 		
 		loadSettings();
+        updateHomeScreenForSharedPuzzle(); // Update home screen if a puzzle was found in the URL
 
+		// Initialize the puzzle selection state to match the default index, if no selection was loaded
+        if (!state.currentPuzzleSelection.dim && !state.currentPuzzleSelection.stars && !state.currentPuzzleSelection.difficulty) {
+            const defaultPuzzleDef = state.puzzleDefs[state.selectedPuzzleIndex];
+            if (defaultPuzzleDef) {
+                const initialSelection = {
+                    dim: defaultPuzzleDef.dim,
+                    stars: defaultPuzzleDef.stars,
+                    difficulty: getPuzzleDifficultyName(defaultPuzzleDef)
+                };
+                state.currentPuzzleSelection = { ...initialSelection };
+                state.effectivePuzzleSelection = { ...initialSelection };
+            }
+        }
+        
         // Populate the puzzle size selector dropdown on startup
-        populateSizeSelector();
+        populatePuzzleSelectorModal();
 
         // Initialize the import UI when the app loads
         setupImportInterface({ importPuzzleString, setStatus });
 
         // Wire up all the primary action buttons to their respective functions
         addResponsiveListener(backToHomeBtn, showHomeScreen);
-        addResponsiveListener(newPuzzleBtn, fetchNewPuzzle);
+        
+        // The "New Puzzle" button now has conditional logic
+        addResponsiveListener(newPuzzleBtn, () => {
+            if (state.puzzleFromUrl) {
+                importPuzzleString(state.puzzleFromUrl);
+            } else {
+                fetchNewPuzzle();
+            }
+        });
+
         addResponsiveListener(savePuzzleBtn, handleSave);
         addResponsiveListener(checkSolutionBtn, () => checkSolution(true));
         addResponsiveListener(importBtn, handleImport);
@@ -146,11 +177,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- MODAL AND MENU EVENT LISTENERS ---
+        
+        addResponsiveListener(openPuzzleSelectBtn, () => puzzleSelectModal.classList.remove('hidden'));
+        addResponsiveListener(puzzleSelectModalCloseBtn, () => puzzleSelectModal.classList.add('hidden'));
 
         // Wire up mode-switching buttons and modal triggers
         addResponsiveListener(markModeBtn, () => switchMode('mark'));
         addResponsiveListener(drawModeBtn, () => switchMode('draw'));
         addResponsiveListener(borderModeBtn, () => switchMode('border'));
+        addResponsiveListener(drawEraserBtn, () => {
+            state.isDrawEraserActive = !state.isDrawEraserActive;
+            updateModeUI();
+        });
+        addResponsiveListener(borderEraserBtn, () => {
+            state.isBorderEraserActive = !state.isBorderEraserActive;
+            updateModeUI();
+        });
         addResponsiveListener(findSolutionBtn, handleSolutionToggle);
         addResponsiveListener(loadPuzzleBtn, () => {
             populateLoadModal();
@@ -184,6 +226,14 @@ document.addEventListener('DOMContentLoaded', () => {
         autoXAroundToggle.addEventListener('change', (e) => { state.autoXAroundStars = e.target.checked; saveSettings();});
         autoXMaxLinesToggle.addEventListener('change', (e) => { state.autoXOnMaxLines = e.target.checked; saveSettings();});
         autoXMaxRegionsToggle.addEventListener('change', (e) => { state.autoXOnMaxRegions = e.target.checked; saveSettings();});
+        showTimerToggle.addEventListener('change', (e) => {
+            state.showTimer = e.target.checked;
+            saveSettings();
+            // If a game is active, immediately apply the change.
+            if (state.timerInterval) {
+                gameTimer.classList.toggle('hidden', !state.showTimer);
+            }
+        });
 
         // --- LOAD/SAVE MODAL EVENT LISTENERS ---
 
@@ -289,6 +339,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Resize the canvas whenever the browser window is resized
         window.addEventListener('resize', resizeCanvas);
+        
+        // --- SUCCESS MODAL EVENT LISTENERS ---
+
+        addResponsiveListener(playAnotherBtn, () => {
+		    hideSuccessModal();
+		    puzzleSelectModal.classList.add('hidden');
+		    
+		    // ALWAYS use the user's current selection from the home screen.
+		    // This ensures "Random Puzzle" stays random.
+		    state.effectivePuzzleSelection = { ...state.currentPuzzleSelection };
+		
+		    fetchNewPuzzle();
+		    state.lastSolvedPuzzle = null; // Clean up the state for the next round.
+		});
+
+        addResponsiveListener(changeLevelBtn, () => {
+            // Just open the selector on top; do not hide the success modal.
+            puzzleSelectModal.classList.remove('hidden');
+        });
+
+        addResponsiveListener(goHomeBtn, () => {
+            state.lastSolvedPuzzle = null; // Clean up state
+            hideSuccessModal();
+            showHomeScreen();
+        });
+
+        addResponsiveListener(successModalCloseBtn, () => {
+             state.lastSolvedPuzzle = null; // Clean up state
+             hideSuccessModal();
+        });
+
+        // Close modal if user clicks on the backdrop
+        successModal.addEventListener('click', (e) => {
+            if (e.target === successModal) {
+                 state.lastSolvedPuzzle = null; // Clean up state
+                 hideSuccessModal();
+            }
+        });
+
+        // Prevent clicks inside the modal content from closing it
+        const successModalContent = successModal.querySelector('div');
+        if (successModalContent) {
+            successModalContent.addEventListener('click', (e) => e.stopPropagation());
+        }
+
+        // Share button logic
+        addResponsiveListener(shareSuccessBtn, () => {
+            const time = timeTakenEl.textContent;
+            // Create a shareable URL with the new format
+            const puzzleToShare = encodeURIComponent(state.puzzleId);
+            const shareUrl = `https://www.starbattle.org/Main/?sbn=${puzzleToShare}`;
+            const shareText = `I just solved a ${state.gridDim}x${state.gridDim} Star Battle puzzle in ${time} on starbattle.org! Try it yourself:`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Star Battle Puzzle Solved!',
+                    text: shareText,
+                    url: shareUrl,
+                }).catch(err => console.log("Share API cancelled or failed.", err));
+            } else {
+                // Fallback for desktop/browsers that don't support Web Share API
+                navigator.clipboard.writeText(`${shareText} ${shareUrl}`).then(() => {
+                    hideSuccessModal();
+                    setStatus("Share link copied to clipboard!", true, 2500);
+                }).catch(err => {
+                    hideSuccessModal();
+                    setStatus("Could not copy link.", false, 2500);
+                    console.error('Fallback copy failed:', err);
+                });
+            }
+        });
 
         // --- FINAL INITIALIZATION ---
 
