@@ -53,7 +53,7 @@
 .region-border-b { border-bottom: 2px solid #1f2937; }
 .region-border-l { border-left: 2px solid #1f2937; }
 .region-border-r { border-right: 2px solid #1f2937; }
-.star-svg { color: #f59e0b; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2)); }
+.star-svg { color: #f59e0b; filter: drop-shadow(0px 1px 1px rgb(0 0 0 / 0.8)); }
 .dot-svg { color: #4b5563; }
 .x-svg { color: #374151; }
 
@@ -507,3 +507,4 @@ button:disabled, .toolbar-btn:disabled {
 #puzzle-select-modal {
 	z-index: 110;
 }
+
