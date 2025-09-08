@@ -3,7 +3,7 @@
  * Title: Star Battle Puzzle Game State and Configuration
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.5
+ * @version 1.1.0
  * *-------------------------------------------------------------------------------
  * This script initializes and manages the entire state for a Star Battle puzzle
  * web application. It defines the central `state` object, which holds all dynamic
@@ -30,6 +30,21 @@ const state = {
     regionGrid: [], // A 2D array defining the shape of each region.
     playerGrid: [], // A 2D array storing the player's moves (stars, dots, 'x's).
     sourcePuzzleData: {}, // Holds the original, unmodified puzzle data from the API.
+    puzzleId: null, // The SBN string of the current puzzle, to avoid repeats.
+	puzzleDifficulty: null,
+    puzzleFromUrl: null, // Will store the puzzle string from the URL.
+	lastSolvedPuzzle: null,
+    currentPuzzleSelection: {
+        dim: null,
+        stars: null,
+        difficulty: null,
+    },
+    effectivePuzzleSelection: {
+        dim: null,
+        stars: null,
+        difficulty: null,
+    },
+    selectedPuzzleIndex: 12, // Default to 9x9 (2-star, Easy)
 
     // --- History for Undo/Redo ---
     history: {
@@ -39,6 +54,8 @@ const state = {
     },
 
     // --- Gameplay State & Modes ---
+    timerInterval: null, // Holds the setInterval ID for the game timer.
+    puzzleStartTime: null, // Tracks when the current puzzle was started.
     markIsX: true, // Toggles the primary marking tool between an 'X' and a dot.
     isLoading: true, // Flag to show a loading indicator while fetching puzzles.
     solution: null, // Stores the solved puzzle data when fetched.
@@ -50,12 +67,15 @@ const state = {
     isDragging: false, // Tracks if a drag operation is in progress.
     lastPos: null, // Stores the last known position (row, col) during a drag.
     currentDragChanges: [], // Batches cell changes from a single drag for a single undo action.
+    currentEraseChanges: [], // Batches border cells erased during a single drag action.
     activeTouchId: null, // Tracks the unique identifier of the active touch point to prevent multi-touch conflicts.
     animationFrameId: null, // Stores the ID for `requestAnimationFrame` to optimize drag-based drawing.
 
     // --- Drawing & Border Tool State ---
     currentBorderPath: new Set(), // A set of cell coordinates for the border being drawn.
     customBorders: [], // Stores completed, custom-drawn border paths.
+    isBorderEraserActive: false, // Toggles the border tool between drawing and erasing.
+    isDrawEraserActive: false,
     colorToReplace: null, // The color to be replaced by the flood fill tool.
     currentColorIndex: 0, // The index of the currently selected color in the palette.
     brushSize: 5, // The size of the brush for the drawing mode.
@@ -66,6 +86,7 @@ const state = {
     autoXAroundStars: false, // Automatically places 'X's in cells adjacent to a placed star.
     autoXOnMaxLines: false, // Automatically places 'X's in a row/column once the star limit is reached.
     autoXOnMaxRegions: false, // Automatically places 'X's in a region once the star limit is reached.
+	showTimer: true, // Toggles the visibility of the timer on the game screen.
 
     // --- Rendering & Performance ---
     bufferCanvas: document.createElement('canvas'), // An off-screen canvas for pre-rendering or buffering.
@@ -182,6 +203,3 @@ const SBN_CODE_TO_DIM_MAP = {
     'NN': 23, 'OO': 24, 'PP': 25
 };
 const DIM_TO_SBN_CODE_MAP = Object.fromEntries(Object.entries(SBN_CODE_TO_DIM_MAP).map(([k, v]) => [v, k]));
-
-
-
