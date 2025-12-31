@@ -1,0 +1,211 @@
+<!-- ===============================================================================
+ * 
+ *	Title: Starbattle.org - 404 Not Found Page
+ *
+ *	@author Isaiah Tadrous
+ *	@version 1.1.0
+ *
+ *	Description:
+ *	This HTML file provides a custom 404 'Not Found' page for the Starbattle.org
+ *	website. Thematically designed around a 'Logical Inconsistency', it enhances
+ *	the user experience for broken or incorrect URLs. The page features a dynamic,
+ *	full-screen JavaScript canvas animation depicting a constellation field that
+ *	interactively responds to the user's mouse movements. The layout, styled with
+ *	Tailwind CSS, presents a clear error message and offers direct links for the
+ *	user to navigate back to the homepage or report a bug.
+ *	
+ **********************************************************************************
+-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="Icons/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="Icons/favicon.svg" />
+    <title>404 - Path Not Found</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+            overflow: hidden;
+        }
+        #constellation-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+            background: radial-gradient(ellipse at center, rgba(248, 250, 252, 0.5) 0%, rgba(248, 250, 252, 1) 70%);
+        }
+        .glow-text {
+            text-shadow: 0 0 8px rgba(14, 165, 233, 0.2), 0 0 20px rgba(14, 165, 233, 0.1);
+        }
+        .btn-primary {
+            background-color: rgba(14, 165, 233, 0.1);
+            border: 1px solid rgba(14, 165, 233, 0.3);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background-color: rgba(14, 165, 233, 0.2);
+            border-color: rgba(14, 165, 233, 0.7);
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+        }
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-color: rgba(0, 0, 0, 0.3);
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <canvas id="constellation-canvas"></canvas>
+    <main class="content-wrapper w-full h-full flex items-center justify-center text-center p-8">
+        <div>
+            <h1 class="text-8xl md:text-9xl font-black text-[#0ea5e9] glow-text tracking-tighter">404</h1>
+            <h2 class="mt-2 text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Logical Inconsistency Detected</h2>
+            <p class="mt-6 max-w-lg mx-auto text-base md:text-lg text-slate-600">
+                The coordinates you've entered do not correspond to a valid sector in the starbattle.org universe. The path is either undefined or lacks the logical constraints for existence.
+            </p>
+            <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="https://www.starbattle.org" class="btn-primary text-[#0284c7] font-medium py-3 px-8 rounded-full text-lg w-full sm:w-auto">
+                    Recalculate Route to Homepage
+                </a>
+                <a href="https://www.starbattle.org/Extensions/discord.html" class="btn-secondary text-slate-700 font-medium py-3 px-8 rounded-full text-lg w-full sm:w-auto">
+                    Report a Bug
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const canvas = document.getElementById('constellation-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let points = [];
+        const mouse = { x: null, y: null, radius: 150 };
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
+            points = [];
+            const density = 40;
+            for (let x = 0; x <= width + density; x += density) {
+                for (let y = 0; y <= height + density; y += density) {
+                    points.push({
+                        x: x + Math.random() * density,
+                        y: y + Math.random() * density,
+                        baseX: x,
+                        baseY: y,
+                        density: Math.random() * 30 + 1,
+                        vx: (Math.random() - 0.5) * 0.1,
+                        vy: (Math.random() - 0.5) * 0.1
+                    });
+                }
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.strokeStyle = 'rgba(14, 165, 233, 0.3)';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < points.length; i++) {
+                for (let j = i + 1; j < points.length; j++) {
+                    const dx = points[i].x - points[j].x;
+                    const dy = points[i].y - points[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < 60) {
+                        ctx.beginPath();
+                        ctx.moveTo(points[i].x, points[i].y);
+                        ctx.lineTo(points[j].x, points[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            ctx.fillStyle = 'rgba(14, 165, 233, 1)';
+            points.forEach(point => {
+                if (mouse.x !== null && mouse.y !== null) {
+                    const dx = mouse.x - point.x;
+                    const dy = mouse.y - point.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < mouse.radius) {
+                        const forceDirectionX = dx / distance;
+                        const forceDirectionY = dy / distance;
+                        const maxDistance = mouse.radius;
+                        const force = (maxDistance - distance) / maxDistance;
+                        point.x -= forceDirectionX * force * 2;
+                        point.y -= forceDirectionY * force * 2;
+                    } else {
+                        if (point.x !== point.baseX) {
+                            const dxReturn = point.x - point.baseX;
+                            point.x -= dxReturn / 10;
+                        }
+                        if (point.y !== point.baseY) {
+                            const dyReturn = point.y - point.baseY;
+                            point.y -= dyReturn / 10;
+                        }
+                    }
+                } else {
+                    if (point.x !== point.baseX) {
+                        const dxReturn = point.x - point.baseX;
+                        point.x -= dxReturn / 10;
+                    }
+                    if (point.y !== point.baseY) {
+                        const dyReturn = point.y - point.baseY;
+                        point.y -= dyReturn / 10;
+                    }
+                }
+
+                point.x += point.vx;
+                point.y += point.vy;
+
+                if (point.x > width || point.x < 0) point.vx *= -1;
+                if (point.y > height || point.y < 0) point.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+        window.addEventListener('mouseout', () => {
+            mouse.x = null;
+            mouse.y = null;
+        });
+
+        resize();
+        animate();
+    </script>
+</body>
+</html>
+
