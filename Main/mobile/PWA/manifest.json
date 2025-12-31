@@ -1,21 +1,56 @@
 {
-    "name": "StarBattle.org",
-    "short_name": "StarBattles",
-    "start_url": "index.html",
-    "display": "fullscreen",
-    "background_color": "#374151",
-    "theme_color": "#1F2937",
-    "description": "Starbattle.org Playground!",
-    "icons": [
-        {
-            "src": "icons/icon-192x192.png",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/icon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png"
-        }
-    ]
+  "name": "StarBattle.org",
+  "short_name": "StarBattle",
+  "start_url": "../index.html",
+  "scope": "../",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#1F2937",
+  "theme_color": "#1F2937",
+  "description": "Starbattle.org Playground!",
+  "categories": [
+    "games",
+    "puzzle",
+    "logic",
+    "brain-training",
+    "queens",
+    "star",
+    "starbattle",
+    "starbattles"
+  ],
+  "icons": [
+    {
+      "src": "../icons/favicon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "../icons/web-app-manifest-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../icons/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "../icons/icon-dark-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
+    },
+    {
+      "src": "../icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
 }

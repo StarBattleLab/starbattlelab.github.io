@@ -3,7 +3,7 @@
  * ===============================================================================
  *
  * @author Isaiah Tadrous
- * @version 1.1.5
+ * @version 1.2.0
  *
  * ------------------------------------------------------------------------------
  * Description:
@@ -23,17 +23,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Starbattle.org">
+    <meta name="apple-mobile-web-app-title" content="StarBattle.org">
 
     <title>Starbattle.org</title>
-    <link rel="manifest" href="/PWA/manifest.json">
-	<link rel="apple-touch-icon" href="icons/icon-512x512.png">
+    <link rel="manifest" href="PWA/manifest.json">
+
+
+	<link rel="icon" type="image/png" href="icons/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="icons/favicon.svg" />
+	<link rel="shortcut icon" href="icons/favicon.ico" />
+	<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png" />
 	
-	
-	<!-- Redirection Script -->
-    <script>
+	<script>
         (function() {
             // On initial load, check if the screen is in portrait mode (height > width).
             if (window.innerHeight < window.innerWidth) {
@@ -45,7 +49,7 @@
     </script>
 	
     <link rel="stylesheet" href="tailwind.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -88,25 +92,26 @@
 
     <div id="home-screen" class="w-full h-full flex flex-col items-center justify-center p-6">
         <div class="text-center mb-8">
-            <h1 class="text-5xl font-bold text-white">Star Battle</h1>
-            <p class="text-gray-400">A Logic Puzzle Playground</p>
+            <h1 class="text-5xl font-bold text-white">Starbattle.org</h1>
+            <p class="text-gray-400">Interactive Playground!</p>
         </div>
 
         <div class="w-full max-w-sm flex flex-col gap-4">
             <div class="text-center bg-gray-900 p-4 rounded-lg">
                 <label for="size-select" class="font-semibold mb-2 block text-lg">Size & Difficulty</label>
-                <select id="size-select" class="w-full bg-gray-700 text-white p-3 rounded-lg border-2 border-gray-600 focus:border-blue-500 focus:outline-none text-lg"></select>
+                <button id="open-puzzle-select-btn" class="w-full bg-gray-700 text-white p-3 rounded-lg border-2 border-gray-600 hover:border-blue-500 focus:outline-none text-lg transition-colors">
+                    <span id="puzzle-select-display">Select Puzzle...</span>
+                </button>
             </div>
-
-            <button id="new-puzzle-btn" class="w-full px-4 py-4 bg-green-600 hover:bg-green-700 rounded-lg font-bold transition-all shadow-lg text-xl">
-                New Puzzle
-            </button>
-            <button id="load-puzzle-btn" class="w-full px-4 py-4 bg-blue-800 hover:bg-blue-900 rounded-lg font-semibold transition-all shadow-md text-xl">
-                Load Saved Puzzle
-            </button>
-             <button id="import-btn" class="w-full px-4 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-all shadow-md text-xl">
-                Import from String
-            </button>
+			<button id="new-puzzle-btn" class="w-full px-4 py-4 bg-green-600 hover:bg-green-700 rounded-lg font-semibold transition-all shadow-md text-xl">
+			    New Puzzle
+			</button>
+			<button id="load-puzzle-btn" class="w-full px-4 py-4 bg-blue-800 hover:bg-blue-900 rounded-lg font-semibold transition-all shadow-md text-xl">
+			    Load Saved Puzzle
+			</button>
+			<button id="import-btn" class="w-full px-4 py-4 bg-gray-700 hover:bg-gray-600 rounded-lg font-semibold transition-all shadow-md text-xl">
+			    Import Puzzle
+			</button>
         </div>
     </div>
 
@@ -115,7 +120,7 @@
             <button id="back-to-home-btn" class="top-bar-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
             </button>
-            <div id="status-bar" class="text-center flex-grow">
+            <div id="status-bar" class="text-center flex-grow flex justify-center items-center gap-4">
                 <p id="solver-status" class="font-semibold text-lg transition-opacity duration-300 opacity-0"></p>
             </div>
              <div class="top-bar-actions">
@@ -123,10 +128,22 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
                 </button>
             </div>
-        </div>
-
-        <div id="grid-wrapper" class="flex-grow">
-            <div id="grid-and-canvas-container">
+         </div>
+			<div id="info-bar" class="relative flex justify-between items-center my-2" style="padding-top: 10px;">
+			    <div class="text-left">
+			        <p id="puzzle-difficulty" class="font-semibold text-lg text-gray-400" style="padding-bottem: 5px;"></p>
+			    </div>
+			
+			    <div id="game-timer" class="bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 shadow-md" style="width: 120px;">
+			        <pclass="font-semibold hidden text-start text-white" style="font-size: 17px; padding-top: 5px;"></p>
+			    </div>
+			
+			    <div class="text-right">
+			        <p id="puzzle-size-info" class="font-semibold text-lg text-gray-400" style="padding-bottem: 5px;"></p>
+			    </div>
+			</div>
+         <div id="grid-wrapper" class="flex-grow">
+             <div id="grid-and-canvas-container">
                 <div id="grid-container" class="grid-container bg-gray-100 rounded-md overflow-hidden shadow-lg"></div>
                 <canvas id="draw-canvas"></canvas>
             </div>
@@ -145,7 +162,6 @@
                 <button id="export-btn" class="toolbar-btn bg-gray-700">Export</button>
             </div>
 
-            <!-- MODIFIED: This is the new action bar -->
             <div id="action-bar">
                 <button id="undo-btn" class="action-bar-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
@@ -154,7 +170,7 @@
                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.05-5.5 7.6-5.5 1.96 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg>
                 </button>
                 <button id="clear-btn" class="action-bar-btn red-icon">
-                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                     <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                 </button>
                 <button id="check-solution-btn" class="action-bar-btn green-icon">
                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0z" fill="none"/><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z"/></svg>
@@ -182,12 +198,21 @@
                         <button id="toggle-mark-btn" class="toolbar-btn bg-gray-700">Dots</button>
                     </div>
                     <div id="contextual-controls">
+						<div id="border-tools-wrapper" class="hidden p-2 flex justify-center">
+                            <button id="border-eraser-btn" title="Toggle Eraser" class="toolbar-btn mode-btn p-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 2600 2600" fill="currentColor">
+                                    <g transform="translate(0,2600) scale(0.12,-0.12)" stroke="none">
+                                        <path d="M15145 20993 c-27 -10 -59 -25 -71 -33 -32 -23 -9615 -8691 -9652 -8730 -18 -19 -41 -59 -52 -88 -20 -52 -20 -79 -20 -1805 0 -1162 4 -1764 10 -1789 6 -20 25 -58 43 -84 29 -42 307 -224 3082 -2010 1677 -1080 3069 -1970 3094 -1979 61 -20 110 -19 176 6 52 19 331 293 4644 4555 4386 4334 4591 4537 4611 4591 21 56 21 60 27 1842 7 2001 12 1846 -65 1930 -25 28 -925 603 -2817 1802 -1529 969 -2799 1770 -2823 1781 -62 28 -128 32 -187 11z m-2508 -7054 l2675 -1672 -83 -82 c-360 -355 -3603 -3455 -3612 -3452 -26 8 -5516 3393 -5514 3399 4 12 3840 3478 3849 3478 5 0 1213 -752 2685 -1671z m2866 -3638 l-6 -1413 -1781 -1759 -1781 -1760 -6 1423 c-4 783 -8 1435 -10 1450 -4 25 158 183 1791 1751 987 948 1796 1723 1797 1723 1 -1 -1 -637 -4 -1415z m-6762 -423 l2666 -1641 -8 -41 c-5 -23 -8 -701 -9 -1508 0 -808 -3 -1468 -6 -1468 -3 0 -1242 797 -2755 1771 l-2749 1771 0 1439 0 1439 98 -61 c53 -33 1297 -798 2763 -1701z"/>
+                                    </g>
+                                </svg>
+                            </button>
+                        </div>
                         <div id="color-picker-wrapper" class="p-2 rounded-lg hidden">
                             <div class="flex items-center gap-2 w-full">
                                 <div id="color-slots-container" class="grid grid-cols-4 gap-2 flex-grow">
                                 </div>
                                 <button id="custom-color-btn" class="w-10 h-10 bg-gray-700 hover:bg-gray-600 rounded-md flex items-center justify-center shrink-0 shadow-md">
-                                    <svg class="w-6 h-6 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd"/></svg>
+                                    <svg class="w-6 h-6 text-gray-200" fill="currentColor" viewBox="0 0 20 20"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z"/><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2 -2V6z" clip-rule="evenodd"/></svg>
                                 </button>
                                 <input type="color" id="html-color-picker" class="absolute -z-10 w-0 h-0 opacity-0">
                             </div>
@@ -195,12 +220,48 @@
                         <div id="brush-size-wrapper" class="p-2 rounded-lg hidden">
                             <label for="brush-size-slider" class="text-sm font-semibold text-gray-300 mb-1 text-center block">Brush Size: <span id="brush-size-value">5</span></label>
                             <input type="range" id="brush-size-slider" min="1" max="50" value="5" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer">
+                            <div class="flex justify-center mt-2">
+                                <button id="draw-eraser-btn" title="Toggle Eraser" class="toolbar-btn mode-btn p-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 2600 2600" fill="currentColor">
+                                        <g transform="translate(0,2600) scale(0.12,-0.12)" stroke="none">
+                                            <path d="M15145 20993 c-27 -10 -59 -25 -71 -33 -32 -23 -9615 -8691 -9652 -8730 -18 -19 -41 -59 -52 -88 -20 -52 -20 -79 -20 -1805 0 -1162 4 -1764 10 -1789 6 -20 25 -58 43 -84 29 -42 307 -224 3082 -2010 1677 -1080 3069 -1970 3094 -1979 61 -20 110 -19 176 6 52 19 331 293 4644 4555 4386 4334 4591 4537 4611 4591 21 56 21 60 27 1842 7 2001 12 1846 -65 1930 -25 28 -925 603 -2817 1802 -1529 969 -2799 1770 -2823 1781 -62 28 -128 32 -187 11z m-2508 -7054 l2675 -1672 -83 -82 c-360 -355 -3603 -3455 -3612 -3452 -26 8 -5516 3393 -5514 3399 4 12 3840 3478 3849 3478 5 0 1213 -752 2685 -1671z m2866 -3638 l-6 -1413 -1781 -1759 -1781 -1760 -6 1423 c-4 783 -8 1435 -10 1450 -4 25 158 183 1791 1751 987 948 1796 1723 1797 1723 1 -1 -1 -637 -4 -1415z m-6762 -423 l2666 -1641 -8 -41 c-5 -23 -8 -701 -9 -1508 0 -808 -3 -1468 -6 -1468 -3 0 -1242 797 -2755 1771 l-2749 1771 0 1439 0 1439 98 -61 c53 -33 1297 -798 2763 -1701z"/>
+                                        </g>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+	<div id="success-modal" class="modal-overlay hidden">
+	    <div class="modal-container">
+	        
+	        <button id="success-modal-close-btn" class="close-button" title="Close">&times;</button>
+	        
+	        <button id="share-success-btn" class="share-button" title="Share your success">
+	            <svg xmlns="http://www.w3.org/2000/svg"
+	                 width="24" height="24" viewBox="0 0 24 24" fill="none"
+	                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+	                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+	                <polyline points="16 6 12 2 8 6"></polyline>
+	                <line x1="12" y1="2" x2="12" y2="15"></line>
+	            </svg>
+	        </button>
+	
+	        <h2>Puzzle Solved!</h2>
+	        <p>Time: <span id="time-taken">00:00:000</span></p>
+	
+	        <div class="button-group">
+	            <button id="play-another-btn">Another Puzzle</button>
+	            <button id="change-level-btn">Change Level</button>
+	            <button id="go-home-btn">Home</button>
+	        </div>
+	    </div>
+	</div>
+
 
     <div id="load-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
         <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-2xl max-h-[80vh] flex flex-col">
@@ -221,12 +282,76 @@
 			<div class="space-y-4">
 				<div class="setting-item"><label for="bw-mode-toggle" class="text-lg text-gray-300">B&W Mode</label><label class="toggle-switch"><input type="checkbox" id="bw-mode-toggle" checked><span class="slider"></span></label></div>
 				<div class="setting-item"><label for="highlight-errors-toggle" class="text-lg text-gray-300">Highlight Errors</label><label class="toggle-switch"><input type="checkbox" id="highlight-errors-toggle" checked><span class="slider"></span></label></div>
+				<div class="setting-item"><label for="show-timer-toggle" class="text-lg text-gray-300">Show Timer</label><label class="toggle-switch"><input type="checkbox" id="show-timer-toggle" checked><span class="slider"></span></label></div>
 				<div class="setting-item"><label for="auto-x-around-toggle" class="text-lg text-gray-300">Auto 'X' Around</label><label class="toggle-switch"><input type="checkbox" id="auto-x-around-toggle"><span class="slider"></span></label></div>
 				<div class="setting-item"><label for="auto-x-max-lines-toggle" class="text-lg text-gray-300">Auto 'X' Max Lines</label><label class="toggle-switch"><input type="checkbox" id="auto-x-max-lines-toggle"><span class="slider"></span></label></div>
 				<div class="setting-item"><label for="auto-x-max-regions-toggle" class="text-lg text-gray-300">Auto 'X' Max Regions</label><label class="toggle-switch"><input type="checkbox" id="auto-x-max-regions-toggle"><span class="slider"></span></label></div>
 			</div>
 		</div>
 	</div>
+
+    <div id="puzzle-select-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
+        <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-md flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-200">Select a Puzzle</h2>
+                <button id="puzzle-select-modal-close-btn" class="text-gray-400 hover:text-white text-4xl leading-none font-bold">&times;</button>
+            </div>
+            <div class="space-y-4 max-h-[60vh] overflow-y-auto overflow-x-hidden p-1">
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-300">Size</h3>
+                    <div id="puzzle-size-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                        </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-300">Stars</h3>
+                    <div id="puzzle-star-count-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-2 text-gray-300">Difficulty</h3>
+                    <div id="puzzle-difficulty-list" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        #puzzle-select-modal button:not(#puzzle-select-modal-close-btn) {
+            background-color: #374151;
+            color: #e5e7eb;
+            border: 2px solid #4b5563;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        #puzzle-select-modal button:not(#puzzle-select-modal-close-btn):hover {
+            background-color: #4b5563;
+            border-color: #6b7280;
+        }
+        
+        #puzzle-select-modal button:not(#puzzle-select-modal-close-btn):active,
+        #puzzle-select-modal button:not(#puzzle-select-modal-close-btn).selected {
+            background-color: #16a34a; /* green-600 */
+            border-color: #15803d;   /* green-700 */
+            color: #ffffff;
+        }
+
+        #puzzle-select-modal button:not(#puzzle-select-modal-close-btn).unavailable {
+            background-color: #374151;
+            color: #9ca3af;
+            opacity: 0.6;
+        }
+    </style>
 
 	<script src="solver.js"></script>
 	<script src="state.config.js"></script>
@@ -239,11 +364,6 @@
 	<script src="mobile_import.js"></script>
 	<script src="app.init.js"></script> 
 	<script src="PWA/pwa-manager.js"></script>
-
+	<script src="PWA/install-prompting.js"></script>
 </body>
 </html>
-
-
-
-
-

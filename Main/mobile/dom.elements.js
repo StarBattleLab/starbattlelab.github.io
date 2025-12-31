@@ -3,7 +3,7 @@
  * Title: Star Battle UI Element References
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.0
+ * @version 1.1.0
  * *-------------------------------------------------------------------------------
  * This script centralizes all DOM element references for the Star Battle web
  * application. It queries the document to obtain and store references to all
@@ -30,7 +30,6 @@ const contextualControls = document.getElementById('contextual-controls'); // Wr
 // Core game components
 const highlightErrorsToggle = document.getElementById('highlight-errors-toggle'); // The checkbox input for the "Highlight Errors" setting.
 const gridContainer = document.getElementById('grid-container'); // The main `div` element that holds the puzzle grid cells.
-const sizeSelect = document.getElementById('size-select'); // The dropdown menu for selecting a new puzzle size.
 const solverStatus = document.getElementById('solver-status'); // The text element used to display status messages to the user.
 const loadingSpinner = document.getElementById('loading-spinner'); // The element for the loading animation, shown during API calls.
 const drawCanvas = document.getElementById('draw-canvas'); // The HTML canvas element used for drawing overlays.
@@ -61,6 +60,9 @@ const brushSizeWrapper = document.getElementById('brush-size-wrapper'); // The c
 const colorPickerWrapper = document.getElementById('color-picker-wrapper'); // The container for all color selection UI.
 const htmlColorPicker = document.getElementById('html-color-picker'); // The native HTML input[type=color] element.
 const customColorBtn = document.getElementById('custom-color-btn'); // The button to trigger the color picker for a custom color.
+const borderToolsWrapper = document.getElementById('border-tools-wrapper'); // The container for border-specific tools like the eraser.
+const borderEraserBtn = document.getElementById('border-eraser-btn'); // The button to toggle border erasing.
+const drawEraserBtn = document.getElementById('draw-eraser-btn');
 
 // Settings modal elements
 const settingsBtn = document.getElementById('settings-btn'); // Button to open the settings modal.
@@ -70,12 +72,35 @@ const bwModeToggle = document.getElementById('bw-mode-toggle'); // Toggle switch
 const autoXAroundToggle = document.getElementById('auto-x-around-toggle'); // Toggle for auto-X'ing around stars.
 const autoXMaxLinesToggle = document.getElementById('auto-x-max-lines-toggle'); // Toggle for auto-X'ing full rows/columns.
 const autoXMaxRegionsToggle = document.getElementById('auto-x-max-regions-toggle'); // Toggle for auto-X'ing full regions.
+const showTimerToggle = document.getElementById('show-timer-toggle'); // Toggle for showing the timer.
 
 // Load/Save modal elements
 const loadModal = document.getElementById('load-modal'); // The main container for the load puzzle modal.
 const modalContent = document.getElementById('modal-content'); // The area within the modal where saved games are listed.
 const modalCloseBtn = document.getElementById('modal-close-btn'); // The close button for the load puzzle modal.
 
+// New puzzle selector elements
+const openPuzzleSelectBtn = document.getElementById('open-puzzle-select-btn');
+const puzzleSelectDisplay = document.getElementById('puzzle-select-display');
+const puzzleSelectModal = document.getElementById('puzzle-select-modal');
+const puzzleSelectModalCloseBtn = document.getElementById('puzzle-select-modal-close-btn');
+const puzzleSizeGrid = document.getElementById('puzzle-size-grid');
+const puzzleStarCountList = document.getElementById('puzzle-star-count-list');
+const puzzleDifficultyList = document.getElementById('puzzle-difficulty-list');
+
+
 // Responsive UI elements
 const hamburgerMenuBtn = document.getElementById('hamburger-menu-btn'); // The hamburger menu button for mobile view.
 const puzzleActionsTab = document.getElementById('puzzle-actions-tab'); // The slide-out panel containing puzzle actions on mobile.
+
+// Success Modal Elements
+const successModal = document.getElementById('success-modal');
+const successModalCloseBtn = document.getElementById('success-modal-close-btn');
+const shareSuccessBtn = document.getElementById('share-success-btn');
+const timeTakenEl = document.getElementById('time-taken');
+const gameTimer = document.getElementById('game-timer');
+const puzzleDifficulty = document.getElementById('puzzle-difficulty');
+const puzzleSizeInfo = document.getElementById('puzzle-size-info');
+const playAnotherBtn = document.getElementById('play-another-btn');
+const changeLevelBtn = document.getElementById('change-level-btn');
+const goHomeBtn = document.getElementById('go-home-btn');

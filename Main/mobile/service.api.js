@@ -1,27 +1,27 @@
 /**
- * **********************************************************************************
- * Title: Star Battle API and Data Management
- * **********************************************************************************
- * @author Isaiah Tadrous
- * @version 1.1.8
- * *-------------------------------------------------------------------------------
- * This script manages all asynchronous communication with the backend API for the
- * Star Battle puzzle application. Its responsibilities include fetching new
- * puzzles, sending the current puzzle to be solved by the server, and verifying
- * the correctness of a player's solution. It also implements the import and
- * export functionality, converting game states to and from a portable string
- * format (SBN) via API calls. Furthermore, it handles the client-side persistence
- * of game states by saving and loading puzzles, including player progress and
- * drawings, to and from the browser's local storage.
- * **********************************************************************************
- */
+***********************************************************************************
+* Title: Star Battle API and Data Management
+***********************************************************************************
+* @author Isaiah Tadrous
+* @version 1.2.0
+* *-------------------------------------------------------------------------------
+* This script manages all asynchronous communication with the backend API for the
+* Star Battle puzzle application. Its responsibilities include fetching new
+* puzzles, sending the current puzzle to be solved by the server, and verifying
+* the correctness of a player's solution. It also implements the import and
+* export functionality, converting game states to and from a portable string
+* format (SBN) via API calls. Furthermore, it handles the client-side persistence
+* of game states by saving and loading puzzles, including player progress and
+* drawings, to and from the browser's local storage.
+* **********************************************************************************
+*/
 
 // --- API & PUZZLE DATA FUNCTIONS ---
 
 // --- CORE API COMMUNICATION ---
 
 /**
- * Fetches a new puzzle from the local puzzles dir.
+ * Fetches a new puzzle from the local puzzles dir based on current filter selection.
  * On success, it clears the current game state, updates the state with the new
  * puzzle data, and renders the new grid.
  * @async
@@ -29,10 +29,52 @@
  */
 async function fetchNewPuzzle() {
     setLoading(true);
-    const sizeId = sizeSelect.value;
-    const puzzleDef = state.puzzleDefs[sizeId]; // Get the full puzzle definition
 
-    // Check if the definition and filename are valid
+    // Helper to get difficulty name, must match the one in ui.manager.js
+    const getPuzzleDifficultyName = (def) => {
+        const match = def.text.match(/, (.*?)\)/);
+        if (match && match[1]) return match[1];
+        if (def.text.includes("Unsorted")) return "Unsorted";
+        return "None";
+    };
+
+    // --- REVISED LOGIC: READ FROM THE DECIDED 'EFFECTIVE' SELECTION ---
+    // This function no longer needs its own fallback logic.
+    // The decision has already been made by updatePuzzleOptionStates.
+    
+    let potentialPuzzleDefs = state.puzzleDefs;
+    const { dim, stars, difficulty, useOrLogic } = state.effectivePuzzleSelection; // Use effectivePuzzleSelection
+
+    if (useOrLogic) {
+        // A conflict was detected; filter using OR logic to find any puzzle that matches at least one criterion.
+        potentialPuzzleDefs = potentialPuzzleDefs.filter(p => {
+            return (dim !== null && p.dim == dim) ||
+                   (stars !== null && p.stars == stars) ||
+                   (difficulty !== null && getPuzzleDifficultyName(p) === difficulty);
+        });
+    } else {
+        // Default behavior: filter using AND logic where all criteria must match.
+        if (dim !== null) {
+            potentialPuzzleDefs = potentialPuzzleDefs.filter(p => p.dim == dim);
+        }
+        if (stars !== null) {
+            potentialPuzzleDefs = potentialPuzzleDefs.filter(p => p.stars == stars);
+        }
+        if (difficulty !== null) {
+            potentialPuzzleDefs = potentialPuzzleDefs.filter(p => getPuzzleDifficultyName(p) === difficulty);
+        }
+    }
+
+    // If, for some reason, the list is empty (should not happen with new UI logic),
+    // default to the full list to prevent errors.
+    if (potentialPuzzleDefs.length === 0) {
+        console.warn("Effective puzzle selection yielded no results. Defaulting to a random puzzle.");
+        potentialPuzzleDefs = state.puzzleDefs;
+    }
+    
+    // Pick a random definition from the filtered list
+    const puzzleDef = potentialPuzzleDefs[Math.floor(Math.random() * potentialPuzzleDefs.length)];
+
     if (!puzzleDef || !puzzleDef.file) {
         console.error("Selected puzzle definition is invalid or missing a filename.");
         setStatus("Could not load puzzle definition.", false);
@@ -40,45 +82,62 @@ async function fetchNewPuzzle() {
         return;
     }
 
-    // Construct the path to the correct .txt file
     const puzzlePath = PUZZLES_DIRECTORY_PATH + puzzleDef.file;
 
     try {
         const response = await fetch(puzzlePath);
         if (!response.ok) throw new Error(`Failed to load ${puzzlePath}`);
         
-        // Fetch the file content as plain text
         const textContent = await response.text();
-        
-        // Split the text into an array of SBN strings and filter out empty lines
-        const puzzlesForSize = textContent.split('\n').filter(line => line.trim() !== '');
+        const puzzlesInFile = textContent.split('\n').filter(line => line.trim() !== '');
 
-        if (!puzzlesForSize || puzzlesForSize.length === 0) {
+        if (!puzzlesInFile || puzzlesInFile.length === 0) {
             throw new Error(`No puzzles found in file ${puzzleDef.file}`);
         }
-        
-        const randomSbn = puzzlesForSize[Math.floor(Math.random() * puzzlesForSize.length)];
-        const puzzleData = decodeSbn(randomSbn);
 
+        // Further filter puzzles from the file to match the star count and dim
+         const matchingSBNs = puzzlesInFile.filter(sbn => {
+            const decoded = decodeSbn(sbn);
+            if (!decoded) return false;
+            const sbnDim = parseAndValidateGrid(decoded.task).dim;
+            return sbnDim === puzzleDef.dim && decoded.stars === puzzleDef.stars;
+        });
+        
+        if (matchingSBNs.length === 0) {
+            throw new Error(`No puzzles in ${puzzleDef.file} match the required dim/star count.`);
+        }
+
+        let randomSbn = matchingSBNs[Math.floor(Math.random() * matchingSBNs.length)];
+        
+        if (matchingSBNs.length > 1 && randomSbn === state.puzzleId) {
+            // Simple retry once to get a different one
+            randomSbn = matchingSBNs[Math.floor(Math.random() * matchingSBNs.length)];
+        }
+        
+        const puzzleData = decodeSbn(randomSbn);
         if (!puzzleData) throw new Error('Failed to decode SBN from local file');
         
-        const { grid, dim } = parseAndValidateGrid(puzzleData.task);
-        if (!grid) throw new Error('Failed to parse grid from decoded SBN');
+        const { grid: regionGrid, dim: puzzleDim } = parseAndValidateGrid(puzzleData.task);
+        if (!regionGrid) throw new Error('Failed to parse grid from decoded SBN');
 
         // Update global state with new puzzle data
-        state.regionGrid = grid;
+        state.puzzleId = randomSbn;
+        state.regionGrid = regionGrid;
         state.starsPerRegion = puzzleData.stars;
         state.sourcePuzzleData = { task: puzzleData.task, stars: puzzleData.stars };
-        state.gridDim = dim;
+        state.puzzleDifficulty = getPuzzleDifficultyName(puzzleDef);
+        state.gridDim = puzzleDim;
         state.solution = null;
         state.isViewingSolution = false;
+        state.puzzleStartTime = new Date();
+        startTimer();
         gridContainer.classList.remove('solution-mode');
         updateSolutionButtonUI();
         
-        // Reset and render the game board
         clearPuzzleState();
         renderGrid();
-        showScreen('game'); // Keep mobile-specific UI calls
+        updatePuzzleInfoBar();
+        showScreen('game');
     } catch (error) {
         console.error("Error fetching new puzzle:", error);
         setStatus("Failed to load puzzle.", false);
@@ -86,6 +145,7 @@ async function fetchNewPuzzle() {
         setLoading(false);
     }
 }
+
 
 /**
  * Sends the current puzzle's definition to the backend API to find a solution.
@@ -158,7 +218,6 @@ async function checkSolution(isManualCheck = false, lastStarCoords = null) {
             return;
         }
 
-        // ... (The entire middle section of the function for checking the puzzle remains unchanged)
         const stars = [];
         const rowCounts = Array(gridDim).fill(0);
         const colCounts = Array(gridDim).fill(0);
@@ -196,7 +255,6 @@ async function checkSolution(isManualCheck = false, lastStarCoords = null) {
             }
             if (adjacentFound) {
                 isCorrect = false;
-                //errorMessage = "Incorrect. Some stars are touching.";
                 break;
             }
         }
@@ -209,19 +267,24 @@ async function checkSolution(isManualCheck = false, lastStarCoords = null) {
             
             if (!countsAreValid) {
                 isCorrect = false;
-                //errorMessage = "Incorrect. Check star counts in rows, columns, or regions.";
             }
         }
-        // ... (End of the unchanged checking logic)
+
+        const allStarsPlaced = stars.length === gridDim * starsPerRegion;
 
         // Display result
-        if (isCorrect && stars.length === gridDim * starsPerRegion) {
-            setStatus("Correct!", true);
-            triggerSuccessAnimation(lastStarCoords);
-        } else if (isManualCheck) { // <<< THIS IS THE KEY CHANGE
-            // Only show error messages if the check was manually triggered
-            if (stars.length !== gridDim * starsPerRegion) {
-                 //errorMessage = `Incorrect. You need ${gridDim * starsPerRegion} stars total.`;
+        if (isCorrect && allStarsPlaced) {
+            stopTimer();
+            // Clear loading state BEFORE the animation starts
+            if (isManualCheck) {
+                setLoading(false);
+                setStatus("Correct!", true, 1000); // Briefly show success
+            }
+            await triggerSuccessAnimation(lastStarCoords);
+            showSuccessModal();
+        } else if (isManualCheck) {
+            if (!allStarsPlaced) {
+                errorMessage = `Incorrect. You need ${gridDim * starsPerRegion} stars total.`;
             }
             setStatus(errorMessage, false);
         }
@@ -251,12 +314,16 @@ async function importPuzzleString(importString) {
         if (!data) throw new Error('Could not recognize puzzle format');
 
         // Update state with imported puzzle data
+        state.puzzleId = importString.split('~')[0];
         state.gridDim = data.gridDim;
         state.starsPerRegion = data.starsPerRegion;
         state.regionGrid = data.regionGrid;
+        state.puzzleDifficulty = null;
         state.sourcePuzzleData = { task: data.regionGrid.flat().join(','), stars: data.starsPerRegion };
         state.solution = null;
         state.isViewingSolution = false;
+        state.puzzleStartTime = new Date(); // Start/reset timer
+        startTimer();
         gridContainer.classList.remove('solution-mode');
         clearPuzzleState(); // Clear old state before loading new
 
@@ -268,6 +335,7 @@ async function importPuzzleString(importString) {
 
         // Render the newly loaded puzzle and update UI
         renderGrid();
+        updatePuzzleInfoBar();
         updateErrorHighlightingUI();
         updateSolutionButtonUI();
         updateUndoRedoButtons();
@@ -391,5 +459,3 @@ function populateLoadModal() {
         modalContent.appendChild(item);
     });
 }
-
-

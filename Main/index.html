@@ -4,7 +4,7 @@
  * 
  *  @author Joseph Bryant
  *  @refactored by Isaiah Tadrous
- *  @version 2.2.0
+ *  @version 2.3.0
  * 
  * -------------------------------------------------------------------------------
  * 
@@ -28,17 +28,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Star Battle Playground</title>
 	
+	<link rel="icon" type="image/png" href="../Icons/favicon-96x96.png" sizes="96x96" />
+	<link rel="icon" type="image/svg+xml" href="../Icons/favicon.svg" />
+	
     <!-- Redirection Script -->
     <script>
-        (function() {
-            // On initial load, check if the screen is in portrait mode (height > width).
-            if (window.innerHeight > window.innerWidth) {
-                // If so, redirect to the mobile site.
-                // We use replace() to prevent the desktop page from being added to the session history.
-                window.location.replace('./mobile/index.html');
-            }
-        })();
-    </script>
+	    (function() {
+	        // On initial load, check if the screen is in portrait mode (height > width).
+	        if (window.innerHeight > window.innerWidth) {
+	            // Get the current URL's query string (e.g., "?sbn=...")
+	            const queryString = window.location.search;
+	
+	            // Construct the new URL for the mobile site, appending the query string.
+	            const mobileUrl = './mobile/index.html' + queryString;
+	
+	            // Redirect to the mobile site, preserving the URL parameters.
+	            window.location.replace(mobileUrl);
+	        }
+	    })();
+	</script>
 	
     <link rel="stylesheet" href="tailwind.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">

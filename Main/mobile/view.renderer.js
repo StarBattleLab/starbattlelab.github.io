@@ -3,7 +3,7 @@
  * Title: Star Battle Rendering and UI Drawing Engine
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.0.1
+ * @version 1.1.0
  * *-------------------------------------------------------------------------------
  * This script is responsible for all visual rendering and drawing for the Star
  * Battle puzzle application. It handles the initial generation of the puzzle
@@ -257,20 +257,26 @@ function drawSolutionOverlay() {
 
 /**
  * The main drawing loop. It clears the visible canvas and redraws all layers in
- * the correct order: the buffered free-form drawing, custom borders, and finally
+ * the correct order: custom borders, the buffered free-form drawing, and finally
  * the solution overlay if active.
  * @returns {void}
  */
 function redrawAllOverlays() {
     if (!drawCanvas.width || !drawCanvas.height) return;
     drawCtx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
-    // Draw the persistent drawing layer from the buffer
+
+    // Ensure the context is in the default composition mode to prevent eraser bugs.
+    drawCtx.globalCompositeOperation = 'source-over';
+
+    // Draw any user-made borders first.
+    drawCustomBorders();
+
+    // Draw the persistent drawing layer from the buffer on top of the borders.
     if (state.bufferCtx) {
         drawCtx.drawImage(state.bufferCanvas, 0, 0);
     }
-    // Draw any user-made borders on top
-    drawCustomBorders();
-    // Draw the solution overlay on top if active
+
+    // Draw the solution overlay on top if active.
     if (state.isViewingSolution) {
         drawSolutionOverlay();
     }
@@ -370,158 +376,171 @@ class UnionFind {
 /**
  * Triggers a visual animation on all stars to indicate a correct solution.
  * Disables grid interaction during the animation to prevent edits.
- * @returns {void}
+ * @returns {Promise<void>} A promise that resolves when the animation is complete.
  */
 function triggerSuccessAnimation(lastStarCoords = null) {
-    gridContainer.style.pointerEvents = 'none';
-    const PULSE_ANIMATION_DURATION = 1200;
-    const LINE_ANIMATION_PER_SEGMENT = 200;
+    // Wrap the entire function in a Promise
+    return new Promise(resolve => {
+        gridContainer.style.pointerEvents = 'none';
+        const PULSE_ANIMATION_DURATION = 1200;
+        const LINE_ANIMATION_PER_SEGMENT = 200;
 
-    const { gridDim, playerGrid } = state;
-    if (gridDim === 0) return;
+        const { gridDim, playerGrid } = state;
+        if (gridDim === 0) {
+            resolve(); // Resolve immediately if no grid
+            return;
+        }
 
-    const stars = [];
-    const cellWidth = drawCanvas.width / gridDim;
-    const cellHeight = drawCanvas.height / gridDim;
+        const stars = [];
+        const cellWidth = drawCanvas.width / gridDim;
+        const cellHeight = drawCanvas.height / gridDim;
 
-    for (let r = 0; r < gridDim; r++) {
-        for (let c = 0; c < gridDim; c++) {
-            if (playerGrid[r][c] === 1) {
-                stars.push({
-                    id: stars.length,
-                    r,
-                    c,
-                    x: c * cellWidth + cellWidth / 2,
-                    y: r * cellHeight + cellHeight / 2,
-                });
+        for (let r = 0; r < gridDim; r++) {
+            for (let c = 0; c < gridDim; c++) {
+                if (playerGrid[r][c] === 1) {
+                    stars.push({
+                        id: stars.length,
+                        r,
+                        c,
+                        x: c * cellWidth + cellWidth / 2,
+                        y: r * cellHeight + cellHeight / 2,
+                    });
+                }
             }
         }
-    }
-    if (stars.length < 2) {
-        if (stars.length === 1) initiatePulseAndCleanup();
-        else gridContainer.style.pointerEvents = 'auto';
-        return;
-    }
 
-    const connections = new Set();
-    stars.forEach((star1) => {
-        const neighbors = stars
-            .filter(star2 => star1.id !== star2.id)
-            .map(star2 => ({
-                ...star2,
-                distance: Math.hypot(star1.x - star2.x, star1.y - star2.y)
-            }))
-            .sort((a, b) => a.distance - b.distance);
-
-        for (let i = 0; i < 3 && i < neighbors.length; i++) {
-            const key = [star1.id, neighbors[i].id].sort((a, b) => a - b).join('-');
-            connections.add(key);
-        }
-    });
-
-    const uf = new UnionFind(stars.length);
-    connections.forEach(key => uf.union(...key.split('-').map(Number)));
-
-    if (uf.numComponents > 1) {
-        const componentGroups = {};
-        stars.forEach(star => {
-            const root = uf.find(star.id);
-            if (!componentGroups[root]) componentGroups[root] = [];
-            componentGroups[root].push(star);
-        });
-        const components = Object.values(componentGroups);
-        const mainComponent = components.shift();
-
-        components.forEach(componentToConnect => {
-            let bestBridge = { distance: Infinity };
-            mainComponent.forEach(star1 => {
-                componentToConnect.forEach(star2 => {
-                    const distance = Math.hypot(star1.x - star2.x, star1.y - star2.y);
-                    if (distance < bestBridge.distance) {
-                        bestBridge = { star1, star2, distance };
-                    }
-                });
+        // Pass the `resolve` function to `initiatePulseAndCleanup`
+        function initiatePulseAndCleanup() {
+            gridContainer.querySelectorAll('.grid-cell .star-svg').forEach(el => {
+                el.parentElement.classList.add('correct-star-pulse');
+                el.parentElement.addEventListener('animationend', () => el.parentElement.classList.remove('correct-star-pulse'), { once: true });
             });
-            const key = [bestBridge.star1.id, bestBridge.star2.id].sort((a, b) => a - b).join('-');
-            connections.add(key);
-        });
-    }
-    
-    const graph = new Map(stars.map(s => [s.id, []]));
-    connections.forEach(key => {
-        const [id1, id2] = key.split('-').map(Number);
-        graph.get(id1).push(id2);
-        graph.get(id2).push(id1);
-    });
+            setTimeout(() => {
+                redrawAllOverlays();
+                gridContainer.style.pointerEvents = 'auto';
+                resolve(); // <<< RESOLVE THE PROMISE HERE
+            }, PULSE_ANIMATION_DURATION);
+        }
 
-    const activatedStars = new Set(), linesBeingDrawn = [], drawnLines = new Set();
-    function activateStar(starId, activationTime) {
-        if (activatedStars.has(starId)) return;
-        activatedStars.add(starId);
-        graph.get(starId).forEach(neighborId => {
-            const key = [starId, neighborId].sort((a, b) => a - b).join('-');
-            if (!drawnLines.has(key)) {
-                linesBeingDrawn.push({
-                    start: stars[starId],
-                    end: stars[neighborId],
-                    startTime: activationTime,
+        if (stars.length < 2) {
+            if (stars.length === 1) {
+                initiatePulseAndCleanup();
+            } else {
+                gridContainer.style.pointerEvents = 'auto';
+                resolve(); // Resolve if there are no stars to animate
+            }
+            return;
+        }
+
+        const connections = new Set();
+        stars.forEach((star1) => {
+            const neighbors = stars
+                .filter(star2 => star1.id !== star2.id)
+                .map(star2 => ({
+                    ...star2,
+                    distance: Math.hypot(star1.x - star2.x, star1.y - star2.y)
+                }))
+                .sort((a, b) => a.distance - b.distance);
+
+            for (let i = 0; i < 3 && i < neighbors.length; i++) {
+                const key = [star1.id, neighbors[i].id].sort((a, b) => a - b).join('-');
+                connections.add(key);
+            }
+        });
+
+        const uf = new UnionFind(stars.length);
+        connections.forEach(key => uf.union(...key.split('-').map(Number)));
+
+        if (uf.numComponents > 1) {
+            const componentGroups = {};
+            stars.forEach(star => {
+                const root = uf.find(star.id);
+                if (!componentGroups[root]) componentGroups[root] = [];
+                componentGroups[root].push(star);
+            });
+            const components = Object.values(componentGroups);
+            const mainComponent = components.shift();
+
+            components.forEach(componentToConnect => {
+                let bestBridge = { distance: Infinity };
+                mainComponent.forEach(star1 => {
+                    componentToConnect.forEach(star2 => {
+                        const distance = Math.hypot(star1.x - star2.x, star1.y - star2.y);
+                        if (distance < bestBridge.distance) {
+                            bestBridge = { star1, star2, distance };
+                        }
+                    });
                 });
-                drawnLines.add(key);
-            }
-        });
-    }
-    
-    function animateBranching(timestamp) {
-        redrawAllOverlays();
-        drawCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-        drawCtx.lineWidth = 2.5;
-        drawCtx.lineCap = 'round';
-
-        const newlyCompletedStars = [];
-        for (let i = linesBeingDrawn.length - 1; i >= 0; i--) {
-            const line = linesBeingDrawn[i];
-            const progress = Math.min((timestamp - line.startTime) / LINE_ANIMATION_PER_SEGMENT, 1);
-            
-            const currentX = line.start.x + (line.end.x - line.start.x) * progress;
-            const currentY = line.start.y + (line.end.y - line.start.y) * progress;
-            drawCtx.beginPath();
-            drawCtx.moveTo(line.start.x, line.start.y);
-            drawCtx.lineTo(currentX, currentY);
-            drawCtx.stroke();
-
-            if (progress >= 1) {
-                newlyCompletedStars.push(linesBeingDrawn.splice(i, 1)[0].end);
-            }
+                const key = [bestBridge.star1.id, bestBridge.star2.id].sort((a, b) => a - b).join('-');
+                connections.add(key);
+            });
         }
-
-        newlyCompletedStars.forEach(star => activateStar(star.id, timestamp));
-
-        if (linesBeingDrawn.length === 0 && newlyCompletedStars.length === 0) {
-            initiatePulseAndCleanup();
-        } else {
-            requestAnimationFrame(animateBranching);
-        }
-    }
-    
-    function initiatePulseAndCleanup() {
-        gridContainer.querySelectorAll('.grid-cell .star-svg').forEach(el => {
-            el.parentElement.classList.add('correct-star-pulse');
-            el.parentElement.addEventListener('animationend', () => el.parentElement.classList.remove('correct-star-pulse'), { once: true });
+        
+        const graph = new Map(stars.map(s => [s.id, []]));
+        connections.forEach(key => {
+            const [id1, id2] = key.split('-').map(Number);
+            graph.get(id1).push(id2);
+            graph.get(id2).push(id1);
         });
-        setTimeout(() => {
+
+        const activatedStars = new Set(), linesBeingDrawn = [], drawnLines = new Set();
+        function activateStar(starId, activationTime) {
+            if (activatedStars.has(starId)) return;
+            activatedStars.add(starId);
+            graph.get(starId).forEach(neighborId => {
+                const key = [starId, neighborId].sort((a, b) => a - b).join('-');
+                if (!drawnLines.has(key)) {
+                    linesBeingDrawn.push({
+                        start: stars[starId],
+                        end: stars[neighborId],
+                        startTime: activationTime,
+                    });
+                    drawnLines.add(key);
+                }
+            });
+        }
+        
+        function animateBranching(timestamp) {
             redrawAllOverlays();
-            gridContainer.style.pointerEvents = 'auto';
-        }, PULSE_ANIMATION_DURATION);
-    }
+            drawCtx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            drawCtx.lineWidth = 2.5;
+            drawCtx.lineCap = 'round';
 
-    let startStar;
-    if (lastStarCoords) {
-        startStar = stars.find(s => s.r === lastStarCoords.r && s.c === lastStarCoords.c);
-    }
-    if (!startStar) {
-        startStar = stars[Math.floor(Math.random() * stars.length)];
-    }
+            const newlyCompletedStars = [];
+            for (let i = linesBeingDrawn.length - 1; i >= 0; i--) {
+                const line = linesBeingDrawn[i];
+                const progress = Math.min((timestamp - line.startTime) / LINE_ANIMATION_PER_SEGMENT, 1);
+                
+                const currentX = line.start.x + (line.end.x - line.start.x) * progress;
+                const currentY = line.start.y + (line.end.y - line.start.y) * progress;
+                drawCtx.beginPath();
+                drawCtx.moveTo(line.start.x, line.start.y);
+                drawCtx.lineTo(currentX, currentY);
+                drawCtx.stroke();
 
-    activateStar(startStar.id, performance.now());
-    requestAnimationFrame(animateBranching);
+                if (progress >= 1) {
+                    newlyCompletedStars.push(linesBeingDrawn.splice(i, 1)[0].end);
+                }
+            }
+
+            newlyCompletedStars.forEach(star => activateStar(star.id, timestamp));
+
+            if (linesBeingDrawn.length === 0 && newlyCompletedStars.length === 0) {
+                initiatePulseAndCleanup();
+            } else {
+                requestAnimationFrame(animateBranching);
+            }
+        }
+
+        let startStar;
+        if (lastStarCoords) {
+            startStar = stars.find(s => s.r === lastStarCoords.r && s.c === lastStarCoords.c);
+        }
+        if (!startStar) {
+            startStar = stars[Math.floor(Math.random() * stars.length)];
+        }
+
+        activateStar(startStar.id, performance.now());
+        requestAnimationFrame(animateBranching);
+    });
 }

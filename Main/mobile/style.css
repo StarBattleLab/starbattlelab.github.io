@@ -16,7 +16,7 @@
    - Black & white theme and error state visuals
 
    Author: Isaiah Tadrous
-   Last Updated: [2025-08-18]
+   Last Updated: [2025-09-08]
 ========================================================================== */
 
 
@@ -53,7 +53,7 @@
 .region-border-b { border-bottom: 2px solid #1f2937; }
 .region-border-l { border-left: 2px solid #1f2937; }
 .region-border-r { border-right: 2px solid #1f2937; }
-.star-svg { color: #f59e0b; filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.2)); }
+.star-svg { color: #f59e0b; filter: drop-shadow(0px 1px 1px rgb(0 0 0 / 0.8)); }
 .dot-svg { color: #4b5563; }
 .x-svg { color: #374151; }
 
@@ -351,4 +351,161 @@ button:disabled, .toolbar-btn:disabled {
   60% { transform: scale(0.9); }
   100% { transform: scale(1); }
 }
+
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+/* Hide modal by default */
+.hidden {
+    display: none;
+}
+
+/* Modal Container */
+.modal-container {
+    position: relative;
+    background-color: rgb(17 24 39);
+    color: #f0f0f0;
+    border-radius: 10px;
+    padding: 30px 20px 25px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
+
+/* Modal Title */
+.modal-container h2 {
+    font-size: 28px;
+    color: #4ade80; /* green accent */
+    margin-bottom: 10px;
+}
+
+/* Time Display */
+.modal-container p {
+    font-size: 18px;
+    color: #ccc;
+    margin-bottom: 25px;
+}
+
+.modal-container span#time-taken {
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Button Group */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* General Button Style */
+.button-group button {
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+#play-another-btn {
+    background-color: #16a34a; /* green */
+    color: white;
+}
+#play-another-btn:hover {
+    background-color: #15803d;
+}
+
+#change-level-btn {
+    background-color: #1e40af; /* blue */
+    color: white;
+}
+#change-level-btn:hover {
+    background-color: #1e3a8a;
+}
+
+#go-home-btn {
+    background-color: #4b5563; /* gray */
+    color: white;
+}
+#go-home-btn:hover {
+    background-color: #374151;
+}
+
+/* Close Button */
+.close-button {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 26px;
+    color: #ccc;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.close-button:hover {
+    color: white;
+}
+
+/* Share Button */
+.share-button {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+}
+.share-button:hover {
+    color: white;
+}
+
+#info-bar {
+    /* Apply horizontal padding to the container instead of the children */
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+#info-bar > div:first-child,
+#info-bar > div:last-child {
+    /* This makes the left and right elements
+       grow to occupy an equal amount of the leftover space. */
+    flex: 1;
+}
+
+#info-bar > div:first-child {
+    text-align: left;
+}
+
+#info-bar > div:last-child {
+    text-align: right;
+}
+
+#info-bar > div:nth-child(2) {
+    /* This prevents the timer from shrinking if the screen gets too narrow. */
+    flex-shrink: 0;
+}
+
+/* Modal Stacking Order */
+#success-modal {
+	z-index: 100;
+}
+#puzzle-select-modal {
+	z-index: 110;
+}
+
 
