@@ -1,6 +1,6 @@
 /**
  * @file import.js
- * @version 1.0.0
+ * @version 1.1.0
  * @description Provides the user interface and logic for importing Star Battle puzzles. Supports manual drawing, photo import (SnapGrid), and string-based input.
  * @date August 13, 2025
  */
@@ -922,7 +922,7 @@ function setupImportInterface({ importPuzzleString: importPuzzleString, setStatu
 				// Generate an SBN string from the detected data.
 				const n = result.grid.size;
 				const defaultStars = Math.floor(Math.floor(n * n / 4) / n); // Calculate a sensible default for stars.
-				const sbn = encodeToSbn(regions, defaultStars, playerGrid, null);
+				const sbn = encodeToSbnV2(regions, defaultStars, playerGrid, null);
 				if (!sbn) {
 					throw new Error("Error creating puzzle data from detected grid.");
 				}
@@ -1142,7 +1142,7 @@ function setupImportInterface({ importPuzzleString: importPuzzleString, setStatu
 
 			// If all validations pass, encode the puzzle data.
 			// For manual creation, playerGrid and history are empty/null.
-			const sbn = encodeToSbn(GridManager.regions, starCount, [], null);
+			const sbn = encodeToSbnV2(GridManager.regions, starCount, [], null);
 			if (!sbn) {
 				setStatus("Error creating puzzle data. Please check configuration.", false);
 				return;
