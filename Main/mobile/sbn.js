@@ -657,6 +657,16 @@ function universalImportV2(importString) {
     const s = importString.trim();
     if (!s) return null;
 
+    // ── v1 backward-compat: repeating dim codes 44–99 look like v2 ──
+    const v1DimMatch = s.match(/^([4-9])\1/);
+    if (v1DimMatch) {
+        const mainLen = (s.indexOf('~') >= 0 ? s.indexOf('~') : s.length);
+        const minV2Len = 3 + regionCharsForDim(parseInt(v1DimMatch[0], 10));
+        if (mainLen < minV2Len) {
+            return typeof universalImport === 'function' ? universalImport(s) : null;
+        }
+    }
+
     // ── SBN v2: starts with digit(s) then a letter ──
     if (/^\d+[A-Z]/.test(s)) {
         return decodeSBN2(s);
