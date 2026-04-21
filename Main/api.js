@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Interactions and State API
  *
  * @author Isaiah Tadrous
- * @version 1.1.3
+ * @version 1.2.0
  *
  * -------------------------------------------------------------------------------
  *
@@ -332,11 +332,11 @@ function updateUrlWithSbn() {
 
     try {
         // Generate the SBN string, including the player's grid and mark history.
-        const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
+        const sbnString = encodeToSbnV2(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
 
         if (sbnString) {
             // Construct the new URL with the latest SBN.
-            const newUrl = `${window.location.pathname}?sbn=${sbnString}`;
+            const newUrl = `${window.location.pathname}?sbn=${encodeURIComponent(sbnString)}`;
             // Update the URL in the browser's address bar.
             // replaceState is used to avoid creating a new entry in the browser's history for every move.
             window.history.replaceState({}, '', newUrl);

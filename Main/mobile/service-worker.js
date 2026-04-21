@@ -3,7 +3,7 @@
  * Title: Star Battle Service Worker
  * **********************************************************************************
  * @author Isaiah Tadrous
- * @version 1.2.0
+ * @version 1.2.1
  * *-------------------------------------------------------------------------------
  * This service worker script is responsible for caching the application's assets
  * to enable offline functionality and improve loading performance. It uses a
@@ -15,7 +15,7 @@
 
 // --- SERVICE WORKER CONFIGURATION ---
 
-const VERSION = 'v3.6.3'; // Single version string to control both caches.
+const VERSION = 'v3.7.0'; // Single version string to control both caches.
 const CACHE_NAME = `star-battle-cache-${VERSION}`;
 const DYNAMIC_CACHE_NAME = `star-battle-dynamic-${VERSION}`;
 
@@ -33,6 +33,7 @@ const ALL_ASSETS = [
     './dom.elements.js',
     './state.config.js',
     './engine.logic.js',
+    './sbn.js',
     './puzzle_handler.js',
     './service.api.js',
     './ui.manager.js',

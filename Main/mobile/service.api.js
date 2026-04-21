@@ -3,7 +3,7 @@
 * Title: Star Battle API and Data Management
 ***********************************************************************************
 * @author Isaiah Tadrous
-* @version 1.2.0
+* @version 1.2.1
 * *-------------------------------------------------------------------------------
 * This script manages all asynchronous communication with the backend API for the
 * Star Battle puzzle application. Its responsibilities include fetching new
@@ -310,7 +310,7 @@ async function importPuzzleString(importString) {
     if (!importString) return false;
     setLoading(true);
     try {
-        const data = universalImport(importString);
+        const data = universalImportV2(importString);
         if (!data) throw new Error('Could not recognize puzzle format');
 
         // Update state with imported puzzle data
@@ -373,7 +373,7 @@ async function handleImport() {
  */
 async function handleExport() {
     try {
-        const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
+        const sbnString = encodeToSbnV2(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
         if (!sbnString) throw new Error("Failed to generate SBN string.");
         
         // Copy to clipboard with a fallback prompt
@@ -404,7 +404,7 @@ async function handleSave() {
         return;
     }
     try {
-        const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
+        const sbnString = encodeToSbnV2(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
         if (!sbnString) throw new Error("Failed to generate SBN string for saving.");
 
         // Retrieve existing saves and prepend the new one

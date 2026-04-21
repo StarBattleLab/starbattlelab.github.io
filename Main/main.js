@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Main Application Logic
  *
  * @author Isaiah Tadrous
- * @version 1.9.3
+ * @version 1.9.5
  *
  * -------------------------------------------------------------------------------
  *
@@ -285,7 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!importString) return false;
         setLoading(true);
         try {
-            const data = universalImport(importString);
+            const data = universalImportV2(importString);
             if (!data) {
                 throw new Error('Could not recognize puzzle format');
             }
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function handleExport() {
         try {
-            const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
+            const sbnString = encodeToSbnV2(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
             if (!sbnString) throw new Error("Failed to generate SBN string.");
 
             navigator.clipboard.writeText(sbnString).then(() => {
@@ -366,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const sbnString = encodeToSbn(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
+            const sbnString = encodeToSbnV2(state.regionGrid, state.starsPerRegion, state.playerGrid, state.history.mark);
             if (!sbnString) throw new Error("Failed to generate SBN string for saving.");
 
             const saves = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '[]');
