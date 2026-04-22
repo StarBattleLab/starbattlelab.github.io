@@ -3,7 +3,7 @@
 * Title: Star Battle API and Data Management
 ***********************************************************************************
 * @author Isaiah Tadrous
-* @version 1.2.1
+* @version 1.2.2
 * *-------------------------------------------------------------------------------
 * This script manages all asynchronous communication with the backend API for the
 * Star Battle puzzle application. Its responsibilities include fetching new
@@ -135,6 +135,8 @@ async function fetchNewPuzzle() {
         updateSolutionButtonUI();
         
         clearPuzzleState();
+        state.activeMode = 'mark';
+        updateModeUI();
         renderGrid();
         updatePuzzleInfoBar();
         showScreen('game');
@@ -334,6 +336,8 @@ async function importPuzzleString(importString) {
         }
 
         // Render the newly loaded puzzle and update UI
+        state.activeMode = 'mark';
+        updateModeUI();
         renderGrid();
         updatePuzzleInfoBar();
         updateErrorHighlightingUI();
