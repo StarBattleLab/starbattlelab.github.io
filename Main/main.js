@@ -4,7 +4,7 @@
  * Star Battle Puzzle - Main Application Logic
  *
  * @author Isaiah Tadrous
- * @version 1.9.5
+ * @version 1.9.6
  *
  * -------------------------------------------------------------------------------
  *
@@ -157,6 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	                state.solution = null;
 	                updateSolutionButtonUI();
 	                clearPuzzleState();
+	                state.activeMode = 'mark';
+	                updateModeUI();
+	                updateUndoRedoButtons();
 	                renderGrid();
 	                updateUrlWithSbn();
 	            }
@@ -307,6 +310,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.history.mark = data.history;
             }
 
+            state.activeMode = 'mark';
+            updateModeUI();
             renderGrid(); // This will also call renderAllMarks via its own logic
             updateErrorHighlightingUI();
             updateSolutionButtonUI();
