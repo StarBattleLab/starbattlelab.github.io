@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /LegacyImplementations/
+
+Sitemap: https://www.starbattle.org/sitemap.xml
