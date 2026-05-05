@@ -1,9 +1,44 @@
 /**
  * @file import.js
- * @version 1.1.0
+ * @version 1.2.0
  * @description Provides the user interface and logic for importing Star Battle puzzles. Supports manual drawing, photo import (SnapGrid), and string-based input.
  * @date August 13, 2025
  */
+
+/**
+ * Determines the star count for a puzzle by finding the smallest region and calculating
+ * the maximum number of non-touching stars (king's-graph independence) that fit within it.
+ * @param {Array<Array<number>>} regions - 2D array of region IDs.
+ * @param {number} n - Grid dimension.
+ * @returns {number} The star count (minimum 1).
+ */
+function calcMaxStarsForSmallestRegion(regions, n) {
+    const regionCells = {};
+    for (let r = 0; r < n; r++) {
+        for (let c = 0; c < n; c++) {
+            const id = regions[r][c];
+            if (!regionCells[id]) regionCells[id] = [];
+            regionCells[id].push({ r, c });
+        }
+    }
+    const smallest = Object.values(regionCells).reduce((min, cells) =>
+        cells.length < min.length ? cells : min
+    );
+    function backtrack(idx, placed) {
+        let best = placed.length;
+        for (let i = idx; i < smallest.length; i++) {
+            const { r, c } = smallest[i];
+            const touches = placed.some(p => Math.abs(p.r - r) <= 1 && Math.abs(p.c - c) <= 1);
+            if (!touches) {
+                placed.push({ r, c });
+                best = Math.max(best, backtrack(i + 1, placed));
+                placed.pop();
+            }
+        }
+        return best;
+    }
+    return Math.max(1, backtrack(0, []));
+}
 
 /**
  * Sets up the entire user interface for importing puzzles.
@@ -921,7 +956,7 @@ function setupImportInterface({ importPuzzleString: importPuzzleString, setStatu
 
 				// Generate an SBN string from the detected data.
 				const n = result.grid.size;
-				const defaultStars = Math.floor(Math.floor(n * n / 4) / n); // Calculate a sensible default for stars.
+				const defaultStars = calcMaxStarsForSmallestRegion(regions, n);
 				const sbn = encodeToSbnV2(regions, defaultStars, playerGrid, null);
 				if (!sbn) {
 					throw new Error("Error creating puzzle data from detected grid.");
