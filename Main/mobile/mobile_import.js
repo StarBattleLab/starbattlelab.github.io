@@ -1,6 +1,6 @@
 /**
  * @file mobile_import.js
- * @version 1.1.0
+ * @version 2.0.0
  * @description Provides the user interface and logic for importing Star Battle puzzles. Supports manual drawing, photo import (SnapGrid), and string-based input.
  * @date August 18, 2025
  */
@@ -309,15 +309,19 @@ const customCss = `
 			<div id="photoModal" class="sbi-modal" style="position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; padding: 1rem;">
 				<div style="background-color: #1f2937; padding: 2rem; border-radius: 0.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.6); width: 100%; max-width: 500px; border: 1px solid #374151;">
 					<h2 style="font-size: 1.5rem; font-weight: bold; color: white; margin-bottom: 1.5rem; text-align: center;">Import Photo</h2>
-					<div style="margin-bottom: 2rem;">
-						<button id="loadImageBtn" style="width: 100%; background-color: #4f46e5; color: white; padding: 0.75rem 1rem; border-radius: 2rem; transition: background-color 0.2s; border: none; margin-bottom: 1rem;">Load Image</button>
+					<div style="margin-bottom: 1.5rem;">
+						<div id="dropZone" style="border: 2px dashed #4b5563; border-radius: 0.5rem; padding: 2rem 1rem; text-align: center; cursor: pointer; transition: border-color 0.2s, background-color 0.2s; background-color: #111827;">
+							<svg xmlns="http://www.w3.org/2000/svg" style="width: 2.5rem; height: 2.5rem; color: #6b7280; margin: 0 auto 0.75rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
+							<p style="color: #e5e7eb; font-weight: 600; font-size: 0.9375rem; margin: 0 0 0.25rem;">Click to browse or drag &amp; drop</p>
+							<p style="color: #6b7280; font-size: 0.75rem; margin: 0;">or paste from clipboard (Ctrl+V)</p>
+							<img id="imagePreview" style="display: none; max-height: 8rem; max-width: 100%; margin: 1rem auto 0; border-radius: 0.375rem; object-fit: contain; pointer-events: none;" alt="Preview" />
+						</div>
 						<input type="file" id="photoFileInput" accept="image/*" style="display: none;" />
 						<div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
 							<input type="checkbox" id="enableAnnotationsCheckbox" style="width: 1rem; height: 1rem;" />
 							<label for="enableAnnotationsCheckbox" style="font-size: 0.875rem; color: #9ca3af;">Enable notations (experimental - may be inaccurate)</label>
 						</div>
 					</div>
-					<div id="selectedImageInfo" style="display: none; margin-bottom: 1rem; padding: 0.75rem; background-color: #374151; border-radius: 0.375rem; color: #9ca3af; font-size: 0.875rem;">No image selected</div>
 					<div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
 						<button id="photoCancelBtn" style="background-color: #4b5563; color: #e5e7eb; padding: 0.5rem 1rem; border-radius: 0.375rem; transition: background-color 0.2s; border: none;">Cancel</button>
 						<button id="snapGridBtn" style="background-color: #16a34a; color: white; padding: 0.5rem 1.5rem; border-radius: 0.375rem; transition: background-color 0.2s; border: none;" disabled>SnapGrid</button>
@@ -761,10 +765,10 @@ const customCss = `
 
 			// Photo import modal elements.
 			this.photoModal = document.getElementById("photoModal");
-			this.loadImageBtn = document.getElementById("loadImageBtn");
+			this.dropZone = document.getElementById("dropZone");
+			this.imagePreview = document.getElementById("imagePreview");
 			this.photoFileInput = document.getElementById("photoFileInput");
 			this.enableAnnotationsCheckbox = document.getElementById("enableAnnotationsCheckbox");
-			this.selectedImageInfo = document.getElementById("selectedImageInfo");
 			this.photoCancelBtn = document.getElementById("photoCancelBtn");
 			this.snapGridBtn = document.getElementById("snapGridBtn");
 			this.photoLoader = document.getElementById("photoLoader");
@@ -831,8 +835,16 @@ const customCss = `
 			});
 
 			// Photo modal event listeners.
-			this.loadImageBtn.addEventListener("click", () => this.photoFileInput.click());
+			this.dropZone.addEventListener("click", () => this.photoFileInput.click());
+			this.dropZone.addEventListener("dragover", e => { e.preventDefault(); this.dropZone.style.borderColor = "#6366f1"; this.dropZone.style.backgroundColor = "#1e1b4b"; });
+			this.dropZone.addEventListener("dragleave", () => { this.dropZone.style.borderColor = "#4b5563"; this.dropZone.style.backgroundColor = "#111827"; });
+			this.dropZone.addEventListener("drop", e => { e.preventDefault(); this.dropZone.style.borderColor = "#4b5563"; this.dropZone.style.backgroundColor = "#111827"; const file = e.dataTransfer.files[0]; if (file && file.type.startsWith("image/")) this.handleImageSelection({ target: { files: [file] } }); });
 			this.photoFileInput.addEventListener("change", e => this.handleImageSelection(e));
+			document.addEventListener("paste", e => {
+				if (!this.photoModal.classList.contains("sbi-modal-active")) return;
+				const item = Array.from(e.clipboardData.items).find(i => i.type.startsWith("image/"));
+				if (item) this.handleImageSelection({ target: { files: [item.getAsFile()] } });
+			});
 			this.photoCancelBtn.addEventListener("click", () => this.closePhotoModal());
 			this.snapGridBtn.addEventListener("click", () => this.processPhotoImport());
 
@@ -916,8 +928,8 @@ const customCss = `
 		resetPhotoModal() {
 			this.selectedFile = null;
 			this.photoFileInput.value = ""; // Clear file input.
-			this.selectedImageInfo.style.display = "none";
-			this.selectedImageInfo.textContent = "No image selected";
+			this.imagePreview.src = "";
+			this.imagePreview.style.display = "none";
 			this.snapGridBtn.disabled = true;
 			this.snapGridBtn.style.backgroundColor = "#4b5563";
 			this.snapGridBtn.style.cursor = "not-allowed";
@@ -935,8 +947,8 @@ const customCss = `
 				return;
 			}
 			this.selectedFile = file;
-			this.selectedImageInfo.textContent = `Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)`;
-			this.selectedImageInfo.style.display = "block";
+			this.imagePreview.src = URL.createObjectURL(file);
+			this.imagePreview.style.display = "block";
 
 			// Enable the "Snap Grid" button now that a file is selected.
 			this.snapGridBtn.disabled = false;
